@@ -4,6 +4,7 @@ const morgan = require('morgan');
 const payerRoutes = require('./routes/payer');
 const payeeRoutes = require('./routes/payee');
 const g2pRoutes   = require('./routes/g2p');
+const fxRoutes    = require('./routes/fx');
 
 const app = express();
 app.use(cors());
@@ -14,6 +15,7 @@ app.get('/health', (_, res) => res.json({ status: 'ok', service: 'core-connector
 
 app.use('/sendmoney', payerRoutes);
 app.use('/g2p', g2pRoutes);
+app.use('/fx',  fxRoutes);
 app.use('/', payeeRoutes);
 
 const PORT = process.env.PORT || 8030;

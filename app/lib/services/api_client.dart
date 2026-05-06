@@ -97,4 +97,33 @@ class ApiClient {
 
   Future<Map<String, dynamic>> getG2PBatch(String batchId) =>
     _get('$coreConnectorBase/g2p/batches/$batchId');
+
+  // ─── FX (Cross-Currency) ────────────────────────────────────────────────────
+  Future<Map<String, dynamic>> getFxQuote({
+    required String sourceCurrency,
+    required double sourceAmount,
+    required String payeeMsisdn,
+  }) => _post('$coreConnectorBase/fx/quote', {
+    'sourceCurrency': sourceCurrency,
+    'sourceAmount': sourceAmount,
+    'payeeMsisdn': payeeMsisdn,
+  });
+
+  Future<Map<String, dynamic>> executeFxTransfer({
+    required String sourceCurrency,
+    required double sourceAmount,
+    required double targetAmount,
+    required double exchangeRate,
+    required double fee,
+    required String payeeMsisdn,
+    String? payerMsisdn,
+  }) => _post('$coreConnectorBase/fx/transfers', {
+    'sourceCurrency': sourceCurrency,
+    'sourceAmount': sourceAmount,
+    'targetAmount': targetAmount,
+    'exchangeRate': exchangeRate,
+    'fee': fee,
+    'payeeMsisdn': payeeMsisdn,
+    'payerMsisdn': payerMsisdn ?? '2389001',
+  });
 }

@@ -12,6 +12,7 @@ import 'screens/success_screen.dart';
 import 'screens/qr_scan_screen.dart';
 import 'screens/merchant_pay_screen.dart';
 import 'screens/g2p_screen.dart';
+import 'screens/fx_screen.dart';
 import 'services/api_client.dart';
 import 'services/transfer_service.dart';
 import 'services/wallet_service.dart';
@@ -59,6 +60,7 @@ void _gotoHome() {
         if (a == 'send') _gotoSend();
         if (a == 'qr') _gotoQR();
         if (a == 'g2p') _gotoG2P();
+        if (a == 'fx') _gotoFX();
       },
       onQR: _gotoQR,
     ),
@@ -67,6 +69,12 @@ void _gotoHome() {
 
 void _gotoG2P() {
   _nav.push(MaterialPageRoute(builder: (_) => G2PScreen(api: _api)));
+}
+
+void _gotoFX() {
+  _nav.push(MaterialPageRoute(
+    builder: (_) => FxScreen(api: _api, onSuccess: _gotoSuccess),
+  ));
 }
 
 void _gotoSend() {
