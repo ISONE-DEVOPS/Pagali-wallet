@@ -143,7 +143,7 @@ class _HomeScreenState extends State<HomeScreen> {
       padding: const EdgeInsets.all(14),
       child: Row(children: [
         _quickAction(Icons.arrow_upward,      'Enviar',   'send'),
-        _quickAction(Icons.qr_code_scanner,   'Pagar QR', 'qr'),
+        _quickAction(Icons.qr_code_2,         'Meu QR',   'myqr'),
         _quickAction(Icons.account_balance,   'G2P',      'g2p'),
         _quickAction(Icons.currency_exchange, 'Remessa',  'fx'),
       ]),
