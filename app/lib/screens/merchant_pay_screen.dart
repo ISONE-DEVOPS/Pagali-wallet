@@ -63,7 +63,16 @@ class _MerchantPayScreenState extends State<MerchantPayScreen> {
                     controller: _amount,
                     keyboardType: TextInputType.number,
                     textAlign: TextAlign.center,
-                    decoration: const InputDecoration(border: InputBorder.none, filled: false, contentPadding: EdgeInsets.zero),
+                    decoration: const InputDecoration(
+                      border: InputBorder.none,
+                      filled: false,
+                      contentPadding: EdgeInsets.zero,
+                      hintText: '0',
+                      hintStyle: TextStyle(
+                        fontFamily: PagaliText.family, fontSize: 48,
+                        fontWeight: FontWeight.w700, color: Colors.white38,
+                      ),
+                    ),
                     style: const TextStyle(
                       fontFamily: PagaliText.family, fontSize: 48, fontWeight: FontWeight.w700,
                       color: Colors.white, fontFeatures: [FontFeature.tabularFigures()],
@@ -78,11 +87,21 @@ class _MerchantPayScreenState extends State<MerchantPayScreen> {
           const Spacer(),
           PButton(
             label: 'Pagar agora', fullWidth: true,
-            onPressed: () => widget.onPay({
-              'name': m['name'], 'phone': m['city'],
-              'amount': num.tryParse(_amount.text) ?? 0,
-              'note': 'Pagali P2M payment', 'kind': 'p2m',
-            }),
+            onPressed: () {
+              final amt = num.tryParse(_amount.text) ?? 0;
+              if (amt <= 0) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Insira um montante válido')),
+                );
+                return;
+              }
+              widget.onPay({
+                'name': m['name'], 'phone': m['city'],
+                'amount': amt,
+                'msisdn': m['merchantId'],
+                'note': 'Pagali P2M payment', 'kind': 'p2m',
+              });
+            },
           ),
         ]),
       )),
