@@ -104,7 +104,6 @@ void _gotoQR() {
 }
 
 void _gotoMerchantPay(Map<String, dynamic> m) {
-  // Normaliza campos do QR parser (merchantName/merchantCity) para o ecrã
   final merchant = {
     'name':       m['merchantName'] ?? m['name'] ?? 'Comerciante',
     'city':       m['merchantCity'] ?? m['city'] ?? '',
@@ -114,7 +113,28 @@ void _gotoMerchantPay(Map<String, dynamic> m) {
     'amount':     m['amount'],
   };
   _nav.pushReplacement(MaterialPageRoute(
-    builder: (_) => MerchantPayScreen(merchant: merchant, onPay: _gotoSuccess),
+    builder: (_) => MerchantPayScreen(
+      merchant: merchant,
+      onPay: (tx) => _gotoConfirmP2M(tx, merchant),
+    ),
+  ));
+}
+
+void _gotoConfirmP2M(Map<String, dynamic> tx, Map<String, dynamic> merchant) {
+  _nav.push(MaterialPageRoute(
+    builder: (_) => ConfirmScreen(
+      tx: {...tx, 'phone': merchant['city']},
+      onConfirm: () async {
+        final receipt = await _transfer.payMerchant(
+          payerMsisdn: '2389001',
+          merchantId: merchant['merchantId'] as String,
+          amount: tx['amount'] as num,
+        );
+        final fee = num.tryParse(receipt['fee']?.toString() ?? '0') ?? 0;
+        WalletService.instance.debit(tx['amount'] as num, fee);
+        _gotoSuccess({...tx, ...receipt});
+      },
+    ),
   ));
 }
 

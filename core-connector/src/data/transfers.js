@@ -1,9 +1,10 @@
 // In-memory transfer store — holds state between POST /transfers and accept-quote
 const store = new Map();
 
-function create({ transferId, payer, payee, amount, currency, fee }) {
+function create({ transferId, payer, payee, amount, currency, fee, kind }) {
   const record = {
     transferId, payer, payee, amount, currency, fee,
+    kind: kind || (payee?.idType === 'BUSINESS' ? 'P2M' : 'P2P'),
     state: 'RESERVED',
     createdAt: new Date().toISOString(),
     expiry: new Date(Date.now() + 60000).toISOString(),
