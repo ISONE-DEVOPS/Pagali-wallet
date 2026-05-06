@@ -73,12 +73,26 @@ router.post('/transfers', (req, res) => {
 });
 
 // Phase 3 — Execute: commit the reserved transfer
-router.post('/transfers/:transferId/accept-quote', (req, res) => {
+router.post('/transfers/:transferId/accept-quote', async (req, res) => {
   const { transferId } = req.params;
   const record = transfers.commit(transferId);
   if (!record) {
     return res.status(404).json({ error: 'Transfer not found', transferId });
   }
+
+  // Notificar merchant registry se for um pagamento P2M
+  if (record.kind === 'P2M' && record.payee?.idValue) {
+    axios.post(`${registryUrl}/payments/notify`, {
+      merchantId: record.payee.idValue,
+      transferId: record.transferId,
+      amount: record.amount,
+      currency: record.currency,
+      fee: record.fee,
+      payerFsp: record.payer?.fspId,
+      createdAt: record.completedAt,
+    }).catch(() => {}); // fire-and-forget
+  }
+
   return res.status(200).json({
     transferId: record.transferId,
     state: 'COMMITTED',
