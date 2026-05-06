@@ -106,20 +106,18 @@ class _FxScreenState extends State<FxScreen> {
         PCard(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           const Text('MOEDA DE ORIGEM', style: PagaliText.label),
           const SizedBox(height: 12),
-          Row(children: _currencies.map((c) => Padding(
-            padding: const EdgeInsets.only(right: 8),
-            child: GestureDetector(
-              onTap: () { setState(() { _currency = c; _quote = null; }); _fetchQuote(); },
-              child: AnimatedContainer(
-                duration: const Duration(milliseconds: 200),
-                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-                decoration: BoxDecoration(
-                  color: _currency == c ? PagaliColors.purple : Colors.transparent,
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: _currency == c ? PagaliColors.purple : const Color(0x20000000)),
-                ),
-                child: Text(
-                  '${_flags[c]} $c',
+          Wrap(spacing: 8, runSpacing: 8, children: _currencies.map((c) => GestureDetector(
+            onTap: () { setState(() { _currency = c; _quote = null; }); _fetchQuote(); },
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 200),
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 9),
+              decoration: BoxDecoration(
+                color: _currency == c ? PagaliColors.purple : Colors.transparent,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: _currency == c ? PagaliColors.purple : const Color(0x20000000)),
+              ),
+              child: Text(
+                '${_flags[c]} $c',
                   style: TextStyle(
                     fontFamily: PagaliText.family, fontWeight: FontWeight.w600, fontSize: 14,
                     color: _currency == c ? Colors.white : PagaliColors.fgDefault,
@@ -127,7 +125,7 @@ class _FxScreenState extends State<FxScreen> {
                 ),
               ),
             ),
-          )).toList()),
+          ).toList()),
         ])),
 
         const SizedBox(height: 16),
