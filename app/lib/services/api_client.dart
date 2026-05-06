@@ -86,6 +86,30 @@ class ApiClient {
   Future<Map<String, dynamic>> parseQr(String qrString) =>
     _post('$qrServiceBase/qr/parse', {'qrString': qrString});
 
+  // ─── Histórico ──────────────────────────────────────────────────────────────
+  Future<List<Map<String, dynamic>>> getTransfers() async {
+    final r = await _http.get(Uri.parse('$coreConnectorBase/transfers'), headers: _headers());
+    if (r.statusCode >= 400) throw ApiException(r.statusCode, r.body);
+    return (jsonDecode(r.body) as List).cast<Map<String, dynamic>>();
+  }
+
+  // ─── QR Generator ───────────────────────────────────────────────────────────
+  Future<Map<String, dynamic>> generateQR({
+    required String merchantId,
+    required String dfspSwift,
+    required String merchantName,
+    required String merchantCity,
+    String? mcc,
+    String? amount,
+  }) => _post('$qrServiceBase/qr/generate', {
+    'merchantId': merchantId,
+    'dfspSwift': dfspSwift,
+    'merchantName': merchantName,
+    'merchantCity': merchantCity,
+    if (mcc != null) 'mcc': mcc,
+    if (amount != null) 'amount': amount,
+  });
+
   // ─── G2P (Government-to-Person) ─────────────────────────────────────────────
   Future<Map<String, dynamic>> createG2PBatch({
     required String program,

@@ -14,7 +14,8 @@ typedef HomeAction = void Function(String key);
 class HomeScreen extends StatefulWidget {
   final HomeAction onAction;
   final VoidCallback onQR;
-  const HomeScreen({super.key, required this.onAction, required this.onQR});
+  final VoidCallback onHistory;
+  const HomeScreen({super.key, required this.onAction, required this.onQR, required this.onHistory});
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -47,7 +48,7 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
               const SizedBox(height: 8),
               _section('Pagar contas', _billPayGrid()),
-              _section('Movimentos recentes', _recentList(), action: 'Ver tudo'),
+              _section('Movimentos recentes', _recentList(), action: 'Ver tudo', onAction: widget.onHistory),
             ],
           ),
           Positioned(
@@ -133,8 +134,8 @@ class _HomeScreenState extends State<HomeScreen> {
       child: Row(children: [
         _quickAction(Icons.arrow_upward, 'Enviar', 'send'),
         _quickAction(Icons.qr_code_scanner, 'Pagar QR', 'qr'),
-        _quickAction(Icons.account_balance, 'G2P', 'g2p'),
         _quickAction(Icons.currency_exchange, 'Remessa', 'fx'),
+        _quickAction(Icons.qr_code_2, 'Meu QR', 'myqr'),
       ]),
     );
   }
@@ -160,7 +161,7 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _section(String title, Widget body, {String? action}) {
+  Widget _section(String title, Widget body, {String? action, VoidCallback? onAction}) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -168,7 +169,11 @@ class _HomeScreenState extends State<HomeScreen> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(title.toUpperCase(), style: PagaliText.label),
-            if (action != null) Text(action, style: PagaliText.bodySm.copyWith(color: PagaliColors.purple, fontWeight: FontWeight.w500)),
+            if (action != null)
+              GestureDetector(
+                onTap: onAction,
+                child: Text(action, style: PagaliText.bodySm.copyWith(color: PagaliColors.purple, fontWeight: FontWeight.w500)),
+              ),
           ],
         ),
         const SizedBox(height: 10),

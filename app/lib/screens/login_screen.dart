@@ -97,6 +97,11 @@ class _LoginScreenState extends State<LoginScreen> {
                   const SizedBox.shrink(), _key('0'), _key('del'),
                 ],
               ),
+              const SizedBox(height: 12),
+              TextButton(
+                onPressed: widget.onAuthenticated,
+                child: Text('Entrar em modo demo', style: TextStyle(color: Colors.white.withValues(alpha: .5), fontSize: 12)),
+              ),
             ],
           ),
         ),
