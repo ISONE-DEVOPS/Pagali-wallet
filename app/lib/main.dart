@@ -58,6 +58,7 @@ void _gotoLogin() {
 void _gotoHome() {
   _nav.pushReplacement(MaterialPageRoute(
     builder: (_) => HomeScreen(
+      api: _api,
       onAction: (a) {
         if (a == 'send')    _gotoSend();
         if (a == 'qr')     _gotoQR();

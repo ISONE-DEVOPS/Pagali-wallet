@@ -6,8 +6,9 @@ import '../widgets/p_avatar.dart';
 import '../widgets/p_card.dart';
 import '../widgets/bottom_nav.dart';
 import '../utils/format.dart';
-import '../models/transaction.dart';
 import '../services/wallet_service.dart';
+import '../services/api_client.dart';
+
 
 typedef HomeAction = void Function(String key);
 
@@ -15,7 +16,8 @@ class HomeScreen extends StatefulWidget {
   final HomeAction onAction;
   final VoidCallback onQR;
   final VoidCallback onHistory;
-  const HomeScreen({super.key, required this.onAction, required this.onQR, required this.onHistory});
+  final ApiClient api;
+  const HomeScreen({super.key, required this.onAction, required this.onQR, required this.onHistory, required this.api});
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -24,13 +26,17 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   String _tab = 'home';
   bool _hideBalance = false;
+  List<Map<String, dynamic>> _recent = [];
 
-  final _txs = <Transaction>[
-    Transaction(kind: TxKind.p2pIn, counterparty: const TxParty(name: 'João Monteiro', idValue: '+238 989 0002'), amount: 1500, when: DateTime.now()),
-    Transaction(kind: TxKind.p2m, counterparty: const TxParty(name: 'Restaurante Sodade', idValue: 'MER002'), amount: 850, when: DateTime.now()),
-    Transaction(kind: TxKind.p2pOut, counterparty: const TxParty(name: 'Maria Tavares', idValue: '+238 989 0003'), amount: 2000, when: DateTime.now().subtract(const Duration(days: 1))),
-    Transaction(kind: TxKind.p2pIn, counterparty: const TxParty(name: 'Carlos Évora', idValue: '+238 989 0004'), amount: 5000, when: DateTime.now().subtract(const Duration(days: 2))),
-  ];
+  @override
+  void initState() { super.initState(); _loadRecent(); }
+
+  Future<void> _loadRecent() async {
+    try {
+      final txs = await widget.api.getTransfers();
+      if (mounted) setState(() => _recent = txs.take(5).toList());
+    } catch (_) {}
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -210,46 +216,61 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _recentList() {
+    if (_recent.isEmpty) {
+      return PCard(
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Center(
+            child: Text('Sem movimentos ainda', style: PagaliText.bodySm.copyWith(color: PagaliColors.fgLight)),
+          ),
+        ),
+      );
+    }
     return PCard(
       padding: EdgeInsets.zero,
-      child: Column(
-        children: [
-          for (int i = 0; i < _txs.length; i++) ...[
-            _txRow(_txs[i]),
-            if (i < _txs.length - 1) const Divider(height: 1, color: Color(0x10000000)),
-          ],
+      child: Column(children: [
+        for (int i = 0; i < _recent.length; i++) ...[
+          _txRow(_recent[i]),
+          if (i < _recent.length - 1) const Divider(height: 1, color: Color(0x10000000)),
         ],
-      ),
+      ]),
     );
   }
 
-  Widget _txRow(Transaction t) {
-    final cfg = switch (t.kind) {
-      TxKind.p2pIn  => (bg: const Color(0xFFE0F8EF), fg: const Color(0xFF0E8B66), icon: Icons.arrow_downward),
-      TxKind.p2m    => (bg: const Color(0xFFFFF1D8), fg: const Color(0xFFA66800), icon: Icons.qr_code),
-      TxKind.p2pOut => (bg: PagaliColors.purple50, fg: PagaliColors.purple, icon: Icons.arrow_upward),
-      TxKind.topup  => (bg: const Color(0xFFE0F8EF), fg: const Color(0xFF0E8B66), icon: Icons.add),
+  Widget _txRow(Map<String, dynamic> t) {
+    final kind = (t['kind'] as String? ?? 'P2P').toUpperCase();
+    final (bg, fg, icon) = switch (kind) {
+      'P2M' => (const Color(0xFFFFF1D8), const Color(0xFFA66800), Icons.qr_code),
+      'G2P' => (const Color(0xFFE0F8EF), const Color(0xFF0E8B66), Icons.account_balance),
+      'FX'  => (const Color(0xFFFFF3E0), const Color(0xFFB45309), Icons.currency_exchange),
+      _     => (PagaliColors.purple50,    PagaliColors.purple,     Icons.arrow_upward),
     };
+    final payee = (t['payee'] as Map?)??{};
+    final label = switch (kind) {
+      'P2M' => 'Comerciante ${payee['idValue'] ?? ''}',
+      'G2P' => 'Subsídio → ${payee['idValue'] ?? ''}',
+      'FX'  => 'Remessa → ${payee['idValue'] ?? ''}',
+      _     => '→ ${payee['idValue'] ?? ''}',
+    };
+    final subtitle = '$kind · ${_timeAgo(t['completedAt'] ?? t['createdAt'] ?? '')}';
+
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),
       child: Row(children: [
         Container(
           width: 42, height: 42,
-          decoration: BoxDecoration(color: cfg.bg, shape: BoxShape.circle),
-          child: Icon(cfg.icon, color: cfg.fg, size: 18),
+          decoration: BoxDecoration(color: bg, shape: BoxShape.circle),
+          child: Icon(icon, color: fg, size: 18),
         ),
         const SizedBox(width: 14),
-        Expanded(child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(t.counterparty.name, style: PagaliText.bodySm.copyWith(color: PagaliColors.fgDefault, fontWeight: FontWeight.w500, fontSize: 15)),
-            Text(_meta(t), style: PagaliText.caption),
-          ],
-        )),
+        Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Text(label, style: PagaliText.bodySm.copyWith(color: PagaliColors.fgDefault, fontWeight: FontWeight.w500, fontSize: 15), overflow: TextOverflow.ellipsis),
+          Text(subtitle, style: PagaliText.caption),
+        ])),
         Text(
-          (t.incoming ? '+' : '−') + Money.cve(t.amount),
+          '−${Money.cve(t['amount'] as num)}',
           style: PagaliText.bodySm.copyWith(
-            color: t.incoming ? const Color(0xFF0E8B66) : PagaliColors.fgDefault,
+            color: PagaliColors.fgDefault,
             fontWeight: FontWeight.w700, fontSize: 15,
             fontFeatures: const [FontFeature.tabularFigures()],
           ),
@@ -258,20 +279,15 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  String _meta(Transaction t) {
-    switch (t.kind) {
-      case TxKind.p2pIn: return 'Recebido · há ${_ago(t.when)}';
-      case TxKind.p2pOut: return 'Enviado · ${_ago(t.when)}';
-      case TxKind.p2m: return 'QR · ${t.counterparty.name.contains('Sodade') ? 'Mindelo' : 'Praia'}';
-      case TxKind.topup: return 'Carregamento';
-    }
-  }
-
-  String _ago(DateTime d) {
-    final diff = DateTime.now().difference(d);
-    if (diff.inMinutes < 60) return '${diff.inMinutes} min';
-    if (diff.inHours < 24) return '${diff.inHours}h';
-    if (diff.inDays == 1) return 'ontem';
-    return '${diff.inDays} dias';
+  String _timeAgo(String iso) {
+    try {
+      final d = DateTime.parse(iso).toLocal();
+      final diff = DateTime.now().difference(d);
+      if (diff.inMinutes < 1) return 'agora';
+      if (diff.inMinutes < 60) return '${diff.inMinutes} min';
+      if (diff.inHours < 24) return '${diff.inHours}h';
+      if (diff.inDays == 1) return 'ontem';
+      return '${diff.inDays} dias';
+    } catch (_) { return ''; }
   }
 }
