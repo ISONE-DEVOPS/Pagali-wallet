@@ -1,0 +1,40 @@
+services:
+  core-connector:
+    build: ./core-connector
+    container_name: pagali-core-connector
+    ports:
+      - "3000:3000"
+    environment:
+      - PORT=3000
+      - SDK_BASE_URL=http://host.docker.internal:4001
+      - MERCHANT_REGISTRY_URL=http://merchant-registry:4002
+      - QR_SERVICE_URL=http://qr-service:3001
+    depends_on:
+      - merchant-registry
+      - qr-service
+    networks:
+      - pagali-net
+
+  qr-service:
+    build: ./qr-service
+    container_name: pagali-qr-service
+    ports:
+      - "3001:3001"
+    environment:
+      - PORT=3001
+    networks:
+      - pagali-net
+
+  merchant-registry:
+    build: ./merchant-registry
+    container_name: pagali-merchant-registry
+    ports:
+      - "4002:4002"
+    environment:
+      - PORT=4002
+    networks:
+      - pagali-net
+
+networks:
+  pagali-net:
+    driver: bridge
