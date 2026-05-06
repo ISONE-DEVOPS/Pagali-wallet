@@ -24,4 +24,8 @@ function commit(transferId) {
   return record;
 }
 
-module.exports = { create, get, commit };
+function list() {
+  return Array.from(store.values()).sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+}
+
+module.exports = { create, get, commit, list };

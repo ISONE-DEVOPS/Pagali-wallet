@@ -40,6 +40,18 @@ router.get('/parties/BUSINESS/:merchantId', async (req, res) => {
   }
 });
 
+// GET /transfers — listar todas as transferências (para debug/monitorização)
+router.get('/transfers', (req, res) => {
+  return res.status(200).json(transfers.list());
+});
+
+// GET /transfers/:id — detalhes de uma transferência
+router.get('/transfers/:transferId', (req, res) => {
+  const record = transfers.get(req.params.transferId);
+  if (!record) return res.status(404).json({ error: 'Transfer not found' });
+  return res.status(200).json(record);
+});
+
 // Phase 2 — Reserve transfer + calculate fee
 router.post('/transfers', (req, res) => {
   const { transferId, payer, payee, amount, currency } = req.body;

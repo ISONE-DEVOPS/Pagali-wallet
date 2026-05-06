@@ -7,6 +7,7 @@ import '../widgets/p_card.dart';
 import '../widgets/p_field.dart';
 import '../widgets/p_avatar.dart';
 import '../utils/format.dart';
+import '../services/wallet_service.dart';
 
 class SendScreen extends StatefulWidget {
   /// Returns the chosen {name, msisdn, amount, note} on completion.
@@ -118,7 +119,13 @@ class _SendScreenState extends State<SendScreen> {
             Text('CVE', style: PagaliText.bodySm.copyWith(color: PagaliColors.purple, fontWeight: FontWeight.w500)),
           ]),
           const SizedBox(height: 6),
-          Text('Disponível: ${Money.cve(5320)} CVE', style: PagaliText.caption.copyWith(color: PagaliColors.purple.withOpacity(.7))),
+          ValueListenableBuilder<num>(
+            valueListenable: WalletService.instance.balance,
+            builder: (_, bal, __) => Text(
+              'Disponível: ${Money.cve(bal)} CVE',
+              style: PagaliText.caption.copyWith(color: PagaliColors.purple.withValues(alpha: .7)),
+            ),
+          ),
         ]),
       ),
       const SizedBox(height: 16),

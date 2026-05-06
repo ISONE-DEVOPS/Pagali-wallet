@@ -7,6 +7,7 @@ import '../widgets/p_card.dart';
 import '../widgets/bottom_nav.dart';
 import '../utils/format.dart';
 import '../models/transaction.dart';
+import '../services/wallet_service.dart';
 
 typedef HomeAction = void Function(String key);
 
@@ -106,9 +107,12 @@ class _HomeScreenState extends State<HomeScreen> {
             ]),
             const SizedBox(height: 4),
             Row(crossAxisAlignment: CrossAxisAlignment.end, children: [
-              Text(
-                _hideBalance ? '••••••' : Money.cve(5320),
-                style: PagaliText.amount.copyWith(color: Colors.white),
+              ValueListenableBuilder<num>(
+                valueListenable: WalletService.instance.balance,
+                builder: (_, bal, __) => Text(
+                  _hideBalance ? '••••••' : Money.cve(bal),
+                  style: PagaliText.amount.copyWith(color: Colors.white),
+                ),
               ),
               const SizedBox(width: 6),
               Padding(

@@ -13,6 +13,7 @@ import 'screens/qr_scan_screen.dart';
 import 'screens/merchant_pay_screen.dart';
 import 'services/api_client.dart';
 import 'services/transfer_service.dart';
+import 'services/wallet_service.dart';
 
 final _navigatorKey = GlobalKey<NavigatorState>();
 final _api = ApiClient();
@@ -79,6 +80,8 @@ void _gotoConfirm(Map<String, dynamic> tx) {
           amount: tx['amount'] as num,
           note: tx['note'] as String?,
         );
+        final fee = num.tryParse(receipt['fee']?.toString() ?? '0') ?? 0;
+        WalletService.instance.debit(tx['amount'] as num, fee);
         _gotoSuccess({...tx, ...receipt});
       },
     ),
