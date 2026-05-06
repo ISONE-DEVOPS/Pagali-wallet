@@ -32,6 +32,8 @@ class _ConfirmScreenState extends State<ConfirmScreen> {
   @override
   Widget build(BuildContext context) {
     final amt = (widget.tx['amount'] as num);
+    final fee = (amt * 0.005);
+    final total = amt + fee;
     return Scaffold(
       backgroundColor: PagaliColors.bgApp,
       appBar: AppBar(title: const Text('Confirmar')),
@@ -49,9 +51,9 @@ class _ConfirmScreenState extends State<ConfirmScreen> {
             const SizedBox(height: 20),
             PCard(child: Column(children: [
               _row('Montante', '${Money.cve(amt)} CVE'),
-              _row('Taxa', '0,00 CVE'),
+              _row('Taxa (0,5%)', '${Money.cve(fee)} CVE'),
               const Divider(height: 16, color: Color(0x10000000)),
-              _row('Total', '${Money.cve(amt)} CVE', emphasis: true),
+              _row('Total', '${Money.cve(total)} CVE', emphasis: true),
               if ((widget.tx['note'] as String?)?.isNotEmpty == true) ...[
                 const Divider(height: 16, color: Color(0x10000000)),
                 const Align(alignment: Alignment.centerLeft, child: Text('Nota', style: PagaliText.caption)),
