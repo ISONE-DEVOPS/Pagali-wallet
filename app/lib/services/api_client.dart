@@ -64,12 +64,14 @@ class ApiClient {
     required String payeeMsisdn,
     required num amount,
     String currency = 'CVE',
+    String kind = 'P2P',
   }) => _post('$coreConnectorBase/transfers', {
     'transferId': transferId,
     'payer': {'idType': 'MSISDN', 'idValue': payerMsisdn, 'fspId': 'BCVCVCV'},
-    'payee': {'idType': 'MSISDN', 'idValue': payeeMsisdn, 'fspId': 'CAIXACV'},
+    'payee': {'idType': kind == 'P2M' ? 'BUSINESS' : 'MSISDN', 'idValue': payeeMsisdn, 'fspId': 'CAIXACV'},
     'amount': amount.toString(),
     'currency': currency,
+    'kind': kind,
   });
 
   // 3) acceptQuote → execute

@@ -61,7 +61,8 @@ router.post('/transfers', (req, res) => {
 
   const parsedAmount = parseFloat(amount);
   const fee = (parsedAmount * FEE_RATE).toFixed(2);
-  const record = transfers.create({ transferId, payer, payee, amount: parsedAmount, currency: currency || 'CVE', fee });
+  const kind = req.body.kind || (payee?.idType === 'BUSINESS' ? 'P2M' : 'P2P');
+  const record = transfers.create({ transferId, payer, payee, amount: parsedAmount, currency: currency || 'CVE', fee, kind });
 
   return res.status(200).json({
     transferId: record.transferId,

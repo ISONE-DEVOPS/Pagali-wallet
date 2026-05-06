@@ -44,8 +44,9 @@ class TransferService {
     final quote = await _api.requestQuote(
       transferId: transferId,
       payerMsisdn: payerMsisdn,
-      payeeMsisdn: m['msisdn'] ?? merchantId,
+      payeeMsisdn: m['id'] ?? merchantId,
       amount: amount,
+      kind: 'P2M',
     );
     final execution = await _api.executeTransfer(transferId: transferId, accept: true);
     return {
