@@ -17,15 +17,15 @@ class ApiClient {
   // Pass via:  flutter run --dart-define=CORE_CONNECTOR_BASE=https://...
   static const String coreConnectorBase = String.fromEnvironment(
     'CORE_CONNECTOR_BASE',
-    defaultValue: 'https://core-connector.pagali.cv',
+    defaultValue: 'http://localhost:8030',
   );
   static const String merchantRegistryBase = String.fromEnvironment(
     'MERCHANT_REGISTRY_BASE',
-    defaultValue: 'https://merchant-registry.pagali.cv',
+    defaultValue: 'http://localhost:4002',
   );
   static const String qrServiceBase = String.fromEnvironment(
     'QR_SERVICE_BASE',
-    defaultValue: 'https://qr.pagali.cv',
+    defaultValue: 'http://localhost:8031',
   );
 
   final http.Client _http;
@@ -81,6 +81,6 @@ class ApiClient {
     _get('$merchantRegistryBase/merchants/$merchantId');
 
   // ─── QR service (EMVCo TLV parser) ─────────────────────────────────────────
-  Future<Map<String, dynamic>> parseQr(String payload) =>
-    _post('$qrServiceBase/qr/parse', {'payload': payload});
+  Future<Map<String, dynamic>> parseQr(String qrString) =>
+    _post('$qrServiceBase/qr/parse', {'qrString': qrString});
 }

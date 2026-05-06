@@ -1,12 +1,15 @@
 const express = require('express');
 const axios = require('axios');
 const accounts = require('../data/accounts');
+const transfers = require('../data/transfers');
 
 const router = express.Router();
 
 const registryUrl = process.env.MERCHANT_REGISTRY_URL || 'http://localhost:4002';
 
-// API 1a — P2P party lookup: ALS resolves MSISDN to account holder
+const FEE_RATE = 0.005; // 0.5%
+
+// Phase 1a — P2P party lookup: ALS resolves MSISDN to account holder
 router.get('/parties/MSISDN/:msisdn', (req, res) => {
   const account = accounts.findByMsisdn(req.params.msisdn);
   if (!account) {
@@ -14,28 +17,20 @@ router.get('/parties/MSISDN/:msisdn', (req, res) => {
   }
   return res.status(200).json({
     party: {
-      partyIdInfo: {
-        partyIdType: 'MSISDN',
-        partyIdentifier: req.params.msisdn,
-        fspId: account.fspId,
-      },
+      partyIdInfo: { partyIdType: 'MSISDN', partyIdentifier: req.params.msisdn, fspId: account.fspId },
       name: account.name,
     },
   });
 });
 
-// API 1b — P2M party lookup: ALS resolves BUSINESS ID to merchant
+// Phase 1b — P2M party lookup: ALS resolves BUSINESS ID to merchant
 router.get('/parties/BUSINESS/:merchantId', async (req, res) => {
   const { merchantId } = req.params;
   try {
     const { data: merchant } = await axios.get(`${registryUrl}/merchants/${merchantId}`);
     return res.status(200).json({
       party: {
-        partyIdInfo: {
-          partyIdType: 'BUSINESS',
-          partyIdentifier: merchantId,
-          fspId: merchant.fspId,
-        },
+        partyIdInfo: { partyIdType: 'BUSINESS', partyIdentifier: merchantId, fspId: merchant.fspId },
         name: merchant.name,
         merchantClassificationCode: merchant.mcc || '0000',
       },
@@ -45,27 +40,38 @@ router.get('/parties/BUSINESS/:merchantId', async (req, res) => {
   }
 });
 
-// API 2 — Quote: return applicable fees for the transaction
-router.post('/quoterequests', (req, res) => {
-  const { amount } = req.body;
-  const fee = (parseFloat(amount?.amount || 0) * 0.005).toFixed(2);
+// Phase 2 — Reserve transfer + calculate fee
+router.post('/transfers', (req, res) => {
+  const { transferId, payer, payee, amount, currency } = req.body;
+  if (!transferId || !amount) {
+    return res.status(400).json({ error: 'transferId and amount are required' });
+  }
+
+  const parsedAmount = parseFloat(amount);
+  const fee = (parsedAmount * FEE_RATE).toFixed(2);
+  const record = transfers.create({ transferId, payer, payee, amount: parsedAmount, currency: currency || 'CVE', fee });
+
   return res.status(200).json({
-    transferAmount: amount,
-    payeeFspFee: { amount: fee, currency: amount?.currency || 'CVE' },
-    payeeFspCommission: { amount: '0', currency: amount?.currency || 'CVE' },
-    expiration: new Date(Date.now() + 60000).toISOString(),
+    transferId: record.transferId,
+    fee,
+    currency: record.currency,
+    state: 'RESERVED',
+    expiry: record.expiry,
   });
 });
 
-// API 3 — Pre-validation: check limits and account status before transfer
-router.post('/transfers', (req, res) => {
-  return res.status(200).json({ transferState: 'RESERVED' });
-});
-
-// API 4 — Credit posting: confirm and credit merchant account
-router.put('/transfers/:transferId', (req, res) => {
+// Phase 3 — Execute: commit the reserved transfer
+router.post('/transfers/:transferId/accept-quote', (req, res) => {
   const { transferId } = req.params;
-  return res.status(200).json({ transferId, transferState: 'COMMITTED' });
+  const record = transfers.commit(transferId);
+  if (!record) {
+    return res.status(404).json({ error: 'Transfer not found', transferId });
+  }
+  return res.status(200).json({
+    transferId: record.transferId,
+    state: 'COMMITTED',
+    completedAt: record.completedAt,
+  });
 });
 
 module.exports = router;
