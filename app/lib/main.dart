@@ -104,8 +104,17 @@ void _gotoQR() {
 }
 
 void _gotoMerchantPay(Map<String, dynamic> m) {
+  // Normaliza campos do QR parser (merchantName/merchantCity) para o ecrã
+  final merchant = {
+    'name':       m['merchantName'] ?? m['name'] ?? 'Comerciante',
+    'city':       m['merchantCity'] ?? m['city'] ?? '',
+    'mcc':        m['mcc'] ?? '0000',
+    'merchantId': m['merchantId'] ?? '',
+    'dfspSwift':  m['dfspSwift'] ?? '',
+    'amount':     m['amount'],
+  };
   _nav.pushReplacement(MaterialPageRoute(
-    builder: (_) => MerchantPayScreen(merchant: m, onPay: _gotoSuccess),
+    builder: (_) => MerchantPayScreen(merchant: merchant, onPay: _gotoSuccess),
   ));
 }
 
