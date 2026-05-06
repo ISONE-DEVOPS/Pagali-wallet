@@ -136,13 +136,17 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget _quickActions() {
     return PCard(
-      padding: const EdgeInsets.all(14),
-      child: Row(children: [
-        _quickAction(Icons.arrow_upward, 'Enviar', 'send'),
-        _quickAction(Icons.qr_code_scanner, 'Pagar QR', 'qr'),
-        _quickAction(Icons.currency_exchange, 'Remessa', 'fx'),
-        _quickAction(Icons.qr_code_2, 'Meu QR', 'myqr'),
-      ]),
+      padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 8),
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: Row(children: [
+          _quickAction(Icons.arrow_upward,      'Enviar',    'send'),
+          _quickAction(Icons.qr_code_scanner,   'Pagar QR',  'qr'),
+          _quickAction(Icons.account_balance,   'G2P',       'g2p'),
+          _quickAction(Icons.currency_exchange, 'Remessa',   'fx'),
+          _quickAction(Icons.qr_code_2,         'Meu QR',    'myqr'),
+        ]),
+      ),
     );
   }
 
