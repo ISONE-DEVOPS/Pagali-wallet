@@ -1,11 +1,13 @@
 const express = require('express');
 const cors = require('cors');
+const morgan = require('morgan');
 const payerRoutes = require('./routes/payer');
 const payeeRoutes = require('./routes/payee');
 
 const app = express();
 app.use(cors());
 app.use(express.json());
+app.use(morgan('[:date[iso]] :method :url :status :response-time ms'));
 
 app.get('/health', (_, res) => res.json({ status: 'ok', service: 'core-connector' }));
 
