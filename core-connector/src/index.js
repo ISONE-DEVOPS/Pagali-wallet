@@ -6,10 +6,13 @@ const payeeRoutes = require('./routes/payee');
 const g2pRoutes   = require('./routes/g2p');
 const fxRoutes    = require('./routes/fx');
 
+const path = require('path');
+
 const app = express();
 app.use(cors());
 app.use(express.json());
 app.use(morgan('[:date[iso]] :method :url :status :response-time ms'));
+app.use(express.static(path.join(__dirname, '../public')));
 
 app.get('/health', (_, res) => res.json({ status: 'ok', service: 'core-connector' }));
 

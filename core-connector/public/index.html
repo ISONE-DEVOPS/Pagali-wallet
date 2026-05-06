@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Pagali — Dashboard</title>
+<style>
+  :root {
+    --purple: #6233A0; --purple-50: #F1ECF8; --purple-700: #4F2A82;
+    --lime: #B4BF09;   --lime-light: #F4F6D0;
+    --bg: #F0EDF6;     --surface: #fff;
+    --fg: #212020;     --muted: #515565; --light: #858585;
+    --success: #2BD9A8; --warning: #FFC857; --danger: #E5484D;
+    --radius: 14px;    --shadow: 0 4px 16px rgba(40,20,80,.10);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, 'Segoe UI', sans-serif; background: var(--bg); color: var(--fg); min-height: 100vh; }
+
+  /* Header */
+  header { background: var(--purple); padding: 16px 32px; display: flex; align-items: center; justify-content: space-between; }
+  .logo { color: #fff; font-size: 22px; font-weight: 700; letter-spacing: -.5px; }
+  .logo span { color: var(--lime); }
+  .live { display: flex; align-items: center; gap: 6px; color: rgba(255,255,255,.7); font-size: 12px; }
+  .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--lime); animation: pulse 1.5s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
+
+  /* Layout */
+  main { max-width: 1200px; margin: 0 auto; padding: 28px 24px; }
+
+  /* Stats */
+  .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 28px; }
+  .stat-card { background: var(--surface); border-radius: var(--radius); padding: 20px; box-shadow: var(--shadow); }
+  .stat-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); margin-bottom: 8px; }
+  .stat-value { font-size: 28px; font-weight: 700; color: var(--purple); font-feature-settings: 'tnum'; }
+  .stat-sub { font-size: 12px; color: var(--light); margin-top: 4px; }
+
+  /* Tabs */
+  .tabs { display: flex; gap: 4px; margin-bottom: 16px; background: var(--surface); border-radius: 10px; padding: 4px; box-shadow: var(--shadow); width: fit-content; }
+  .tab { padding: 8px 18px; border-radius: 8px; border: none; cursor: pointer; font-size: 13px; font-weight: 500; background: none; color: var(--muted); transition: all .15s; }
+  .tab.active { background: var(--purple); color: #fff; }
+  .tab:hover:not(.active) { background: var(--purple-50); color: var(--purple); }
+
+  /* Grid */
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  @media (max-width: 800px) { .grid { grid-template-columns: 1fr; } }
+
+  /* Card */
+  .card { background: var(--surface); border-radius: var(--radius); box-shadow: var(--shadow); overflow: hidden; }
+  .card-header { padding: 16px 20px; border-bottom: 1px solid rgba(0,0,0,.06); display: flex; align-items: center; justify-content: space-between; }
+  .card-title { font-size: 14px; font-weight: 600; }
+  .card-count { font-size: 12px; background: var(--purple-50); color: var(--purple); border-radius: 999px; padding: 2px 10px; font-weight: 600; }
+
+  /* Table */
+  table { width: 100%; border-collapse: collapse; }
+  th { font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); padding: 10px 16px; text-align: left; background: #faf9fb; }
+  td { padding: 12px 16px; font-size: 13px; border-top: 1px solid rgba(0,0,0,.05); }
+  tr:hover td { background: var(--purple-50); }
+  .amount { font-weight: 600; font-feature-settings: 'tnum'; }
+  .empty { padding: 32px; text-align: center; color: var(--light); font-size: 13px; }
+
+  /* Badges */
+  .badge { display: inline-flex; align-items: center; gap: 4px; padding: 3px 10px; border-radius: 999px; font-size: 11px; font-weight: 600; }
+  .badge-p2p  { background: #EEF2FF; color: #4F46E5; }
+  .badge-p2m  { background: var(--lime-light); color: #5A6000; }
+  .badge-g2p  { background: #E0F8EF; color: #0E8B66; }
+  .badge-fx   { background: #FFF3E0; color: #B45309; }
+  .badge-ok   { background: #E0F8EF; color: #0E8B66; }
+  .badge-err  { background: #FFE4E4; color: var(--danger); }
+  .badge-pend { background: #FFF8E0; color: #B45309; }
+
+  /* Progress bar */
+  .progress { height: 4px; background: #eee; border-radius: 99px; overflow: hidden; margin-top: 6px; }
+  .progress-fill { height: 100%; background: var(--lime); border-radius: 99px; transition: width .4s; }
+
+  /* Beneficiary row */
+  .brow { display: flex; align-items: center; justify-content: space-between; padding: 10px 16px; border-top: 1px solid rgba(0,0,0,.05); font-size: 13px; }
+  .brow:first-child { border-top: none; }
+
+  /* FX rate */
+  .rate-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 16px; border-top: 1px solid rgba(0,0,0,.05); font-size: 13px; }
+  .rate-val { font-weight: 700; font-feature-settings: 'tnum'; color: var(--purple); }
+
+  .timestamp { color: var(--light); font-size: 11px; }
+  .id { font-family: monospace; font-size: 11px; color: var(--muted); }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">paga<span>li</span> <span style="font-weight:300;font-size:14px;color:rgba(255,255,255,.6)">dashboard</span></div>
+  <div class="live"><div class="dot"></div> live · atualiza a cada 3s</div>
+</header>
+
+<main>
+  <!-- Stats -->
+  <div class="stats" id="stats">
+    <div class="stat-card"><div class="stat-label">Total Transferências</div><div class="stat-value" id="s-total">—</div><div class="stat-sub">P2P + P2M + G2P + FX</div></div>
+    <div class="stat-card"><div class="stat-label">Volume Total (CVE)</div><div class="stat-value" id="s-volume">—</div><div class="stat-sub">todos os tipos</div></div>
+    <div class="stat-card"><div class="stat-label">Pagamentos P2M</div><div class="stat-value" id="s-p2m">—</div><div class="stat-sub">comerciantes</div></div>
+    <div class="stat-card"><div class="stat-label">Remessas FX</div><div class="stat-value" id="s-fx">—</div><div class="stat-sub">internacionais</div></div>
+  </div>
+
+  <!-- Tabs -->
+  <div class="tabs">
+    <button class="tab active" onclick="setTab('all')">Todas</button>
+    <button class="tab" onclick="setTab('P2P')">P2P</button>
+    <button class="tab" onclick="setTab('P2M')">P2M</button>
+    <button class="tab" onclick="setTab('G2P')">G2P</button>
+    <button class="tab" onclick="setTab('FX')">FX</button>
+  </div>
+
+  <!-- Main grid -->
+  <div class="grid">
+
+    <!-- Transfers table -->
+    <div class="card" style="grid-column: 1 / -1">
+      <div class="card-header">
+        <span class="card-title">Transferências</span>
+        <span class="card-count" id="tx-count">0</span>
+      </div>
+      <table>
+        <thead><tr>
+          <th>ID</th><th>Tipo</th><th>Pagador</th><th>Beneficiário</th>
+          <th>Montante</th><th>Taxa</th><th>Estado</th><th>Data</th>
+        </tr></thead>
+        <tbody id="tx-body"><tr><td colspan="8" class="empty">Sem transferências</td></tr></tbody>
+      </table>
+    </div>
+
+    <!-- G2P Batches -->
+    <div class="card" id="g2p-card">
+      <div class="card-header">
+        <span class="card-title">Lotes G2P</span>
+        <span class="card-count" id="g2p-count">0</span>
+      </div>
+      <div id="g2p-body"><div class="empty">Sem lotes G2P</div></div>
+    </div>
+
+    <!-- Merchant Payments + FX Rates -->
+    <div style="display:flex;flex-direction:column;gap:20px">
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">Pagamentos Comerciantes</span>
+          <span class="card-count" id="merch-count">0</span>
+        </div>
+        <div id="merch-body"><div class="empty">Sem pagamentos P2M</div></div>
+      </div>
+      <div class="card">
+        <div class="card-header"><span class="card-title">Taxas de Câmbio</span><span style="font-size:11px;color:var(--light)">CVE</span></div>
+        <div id="fx-rates"><div class="empty">A carregar…</div></div>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<script>
+const BASE = '';
+let activeTab = 'all';
+let allTx = [];
+
+function setTab(t) {
+  activeTab = t;
+  document.querySelectorAll('.tab').forEach(el => el.classList.toggle('active', el.textContent.trim().toUpperCase() === t.toUpperCase() || (t === 'all' && el.textContent === 'Todas')));
+  renderTx();
+}
+
+function fmt(n) { return Number(n).toLocaleString('pt-CV', {minimumFractionDigits: 2, maximumFractionDigits: 2}); }
+function ts(iso) { return iso ? new Date(iso).toLocaleTimeString('pt-CV') : '—'; }
+function kindBadge(k) {
+  const m = {P2P:'badge-p2p',P2M:'badge-p2m',G2P:'badge-g2p',FX:'badge-fx'};
+  return `<span class="badge ${m[k]||'badge-p2p'}">${k||'P2P'}</span>`;
+}
+
+function renderTx() {
+  const filtered = activeTab === 'all' ? allTx : allTx.filter(t => t.kind === activeTab);
+  document.getElementById('tx-count').textContent = filtered.length;
+  const body = document.getElementById('tx-body');
+  if (!filtered.length) { body.innerHTML = '<tr><td colspan="8" class="empty">Sem transferências</td></tr>'; return; }
+  body.innerHTML = filtered.slice(0, 20).map(t => `
+    <tr>
+      <td class="id">${(t.transferId||'').slice(0,8).toUpperCase()}</td>
+      <td>${kindBadge(t.kind)}</td>
+      <td class="id">${t.payer?.idValue||'—'}</td>
+      <td class="id">${t.payee?.idValue||'—'}</td>
+      <td class="amount">${fmt(t.amount)} CVE</td>
+      <td class="amount" style="color:var(--muted)">${fmt(t.fee||0)} CVE</td>
+      <td><span class="badge ${t.state==='COMMITTED'?'badge-ok':'badge-pend'}">${t.state}</span></td>
+      <td class="timestamp">${ts(t.completedAt||t.createdAt)}</td>
+    </tr>`).join('');
+}
+
+async function loadAll() {
+  try {
+    const [txRes, g2pRes, merchRes, fxRes] = await Promise.all([
+      fetch('/transfers').then(r=>r.json()),
+      fetch('/g2p/batches').then(r=>r.json()),
+      fetch('http://localhost:4002/payments').then(r=>r.json()).catch(()=>[]),
+      fetch('/fx/rates').then(r=>r.json()),
+    ]);
+
+    allTx = txRes;
+
+    // Stats
+    const vol = allTx.reduce((s,t) => s + (Number(t.amount)||0), 0);
+    document.getElementById('s-total').textContent = allTx.length;
+    document.getElementById('s-volume').textContent = fmt(vol);
+    document.getElementById('s-p2m').textContent = allTx.filter(t=>t.kind==='P2M').length;
+    document.getElementById('s-fx').textContent = allTx.filter(t=>t.kind==='FX').length;
+
+    renderTx();
+
+    // G2P
+    document.getElementById('g2p-count').textContent = g2pRes.length;
+    document.getElementById('g2p-body').innerHTML = g2pRes.length ? g2pRes.map(b => {
+      const ok = b.beneficiaries.filter(x=>x.state==='SUCCESS').length;
+      const total = b.beneficiaries.length;
+      const pct = total ? (ok/total*100).toFixed(0) : 0;
+      return `<div style="padding:14px 16px;border-top:1px solid rgba(0,0,0,.05)">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+          <span style="font-size:13px;font-weight:500">${b.program}</span>
+          <span class="badge badge-${b.state==='COMPLETED'?'ok':b.state==='PROCESSING'?'pend':'err'}">${b.state}</span>
+        </div>
+        <div style="font-size:11px;color:var(--muted);margin-bottom:6px">${ok}/${total} pagos · ${fmt(b.total)} CVE</div>
+        <div class="progress"><div class="progress-fill" style="width:${pct}%"></div></div>
+        <div style="margin-top:10px">
+          ${b.beneficiaries.map(x=>`
+            <div class="brow">
+              <span>${x.name||x.msisdn}</span>
+              <div style="display:flex;gap:8px;align-items:center">
+                <span class="amount">${fmt(x.amount)} CVE</span>
+                <span class="badge ${x.state==='SUCCESS'?'badge-ok':x.state==='PENDING'?'badge-pend':'badge-err'}">${x.state==='SUCCESS'?'Pago':x.state==='PENDING'?'Pendente':'Erro'}</span>
+              </div>
+            </div>`).join('')}
+        </div>
+      </div>`;
+    }).join('') : '<div class="empty">Sem lotes G2P</div>';
+
+    // Merchant payments
+    document.getElementById('merch-count').textContent = merchRes.length;
+    document.getElementById('merch-body').innerHTML = merchRes.length ? merchRes.slice(0,8).map(p=>`
+      <div class="brow">
+        <div><div style="font-size:13px;font-weight:500">${p.merchantId}</div>
+          <div class="id">${(p.transferId||'').slice(0,8).toUpperCase()} · ${ts(p.createdAt)}</div></div>
+        <span class="amount" style="color:var(--purple)">${fmt(p.amount)} CVE</span>
+      </div>`).join('') : '<div class="empty">Sem pagamentos P2M</div>';
+
+    // FX rates
+    document.getElementById('fx-rates').innerHTML = fxRes.map(r=>`
+      <div class="rate-row">
+        <span>${r.currency} → CVE</span>
+        <span class="rate-val">1 ${r.currency} = ${fmt(r.rate)} CVE</span>
+      </div>`).join('');
+
+  } catch(e) { console.error(e); }
+}
+
+loadAll();
+setInterval(loadAll, 3000);
+</script>
+</body>
+</html>
