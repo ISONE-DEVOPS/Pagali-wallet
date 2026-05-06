@@ -1,0 +1,34 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>Neutrals</title>
+<link rel="stylesheet" href="../colors_and_type.css">
+<style>
+  body{margin:0;font-family:var(--font-sans);background:#fafafa;padding:20px;}
+  .row{display:grid;grid-template-columns:repeat(6,1fr);gap:10px;}
+  .swatch{border-radius:var(--r-md);padding:14px;height:130px;display:flex;flex-direction:column;justify-content:space-between;box-shadow:var(--shadow-1);}
+  .swatch .name{font-weight:700;font-size:13px;}
+  .swatch .hex{font-size:11px;font-family:ui-monospace,Menlo,monospace;opacity:.85;}
+  .swatch .role{font-size:10px;text-transform:uppercase;letter-spacing:.08em;opacity:.7;}
+  .border{border:1px solid #00000014;}
+</style></head>
+<body>
+<div class="row">
+  <div class="swatch border" style="background:#fff;color:#222;">
+    <div class="role">Surface</div><div><div class="name">White</div><div class="hex">#FFFFFF</div></div>
+  </div>
+  <div class="swatch" style="background:var(--bg-app);color:#222;">
+    <div class="role">App BG</div><div><div class="name">Scaffold</div><div class="hex">#E5E5E5</div></div>
+  </div>
+  <div class="swatch" style="background:var(--fg-light);color:#fff;">
+    <div class="role">Text Light</div><div><div class="name">Light</div><div class="hex">#858585</div></div>
+  </div>
+  <div class="swatch" style="background:var(--fg-subtle);color:#fff;">
+    <div class="role">Text Subtle</div><div><div class="name">Subtle</div><div class="hex">#666666</div></div>
+  </div>
+  <div class="swatch" style="background:var(--fg-muted);color:#fff;">
+    <div class="role">Label</div><div><div class="name">Muted</div><div class="hex">#515565</div></div>
+  </div>
+  <div class="swatch" style="background:var(--surface-dark);color:#fff;">
+    <div class="role">Text Well</div><div><div class="name">Dark</div><div class="hex">#212020</div></div>
+  </div>
+</div>
+</body></html>

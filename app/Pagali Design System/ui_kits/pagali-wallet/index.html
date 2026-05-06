@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="pt">
+<head>
+<meta charset="utf-8">
+<title>Pagali Wallet — UI Kit</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="stylesheet" href="../../colors_and_type.css">
+<style>
+  html,body{margin:0;height:100%;font-family:'Roboto',sans-serif;background:#1c1428;}
+  body{display:grid;place-items:center;padding:24px;color:#fff;}
+  .stage{display:flex;flex-direction:column;align-items:center;gap:16px;}
+  .phone{width:380px;height:780px;border-radius:42px;background:#0d0816;padding:14px;box-shadow:0 30px 80px rgba(0,0,0,.5),inset 0 0 0 2px #2b1f44;position:relative;}
+  .screen{position:relative;width:100%;height:100%;border-radius:30px;overflow:hidden;background:#fff;}
+  .pill{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;}
+  .pill button{font-family:Roboto;background:#2a1d44;color:#cfc4e3;border:1px solid #3a2c58;border-radius:999px;padding:8px 14px;font-size:12px;cursor:pointer;}
+  .pill button.on{background:#B4BF09;color:#1a1a1a;border-color:#B4BF09;}
+  .label{font-size:12px;text-transform:uppercase;letter-spacing:.12em;opacity:.6;}
+</style>
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+</head>
+<body>
+<div id="root"></div>
+
+<script type="text/babel" src="components.jsx"></script>
+<script type="text/babel" src="screens.jsx"></script>
+<script type="text/babel">
+function App() {
+  const [route, setRoute] = React.useState('onboard');
+  const [tx, setTx] = React.useState(null);
+  const [merchant, setMerchant] = React.useState(null);
+  const [tab, setTab] = React.useState('home');
+
+  let body = null;
+  if (route === 'onboard')   body = <OnboardScreen onDone={() => setRoute('login')} />;
+  else if (route === 'login')   body = <LoginScreen onDone={() => setRoute('home')} />;
+  else if (route === 'home')    body = <HomeScreen onAction={(a) => {
+    if (a === 'send') setRoute('send');
+    if (a === 'qr') setRoute('qr');
+    if (a === 'topup') setRoute('topup');
+    if (a === 'request') setRoute('topup');
+  }} />;
+  else if (route === 'send')    body = <SendScreen onBack={() => setRoute('home')} onContinue={(t) => { setTx(t); setRoute('confirm'); }} />;
+  else if (route === 'confirm') body = <ConfirmScreen tx={tx} onBack={() => setRoute('send')} onDone={() => setRoute('success')} />;
+  else if (route === 'success') body = <SuccessScreen tx={tx} onDone={() => setRoute('home')} />;
+  else if (route === 'qr')      body = <QRScreen onBack={() => setRoute('home')} onContinue={(m) => { setMerchant(m); setRoute('merchantpay'); }} />;
+  else if (route === 'merchantpay') body = <MerchantPayScreen merchant={merchant} onBack={() => setRoute('qr')} onDone={(t) => { setTx(t); setRoute('success'); }} />;
+  else if (route === 'topup')   body = <div style={{padding:24,background:PAGALI.bg,height:'100%'}}><AppBar title="Carregar saldo" onBack={() => setRoute('home')} /><PCard style={{marginTop:16}}><div style={{textAlign:'center',padding:'40px 12px'}}><Icon name="wallet" size={48} stroke={PAGALI.purple} /><div style={{marginTop:12,color:PAGALI.fgLight}}>Em breve</div></div></PCard></div>;
+
+  // bottom nav (only on app screens, not on full-bleed flows)
+  const showNav = ['home'].includes(route);
+
+  return (
+    <div className="stage">
+      <div className="phone">
+        <div className="screen">
+          {body}
+          {showNav && <BottomNav active={tab} onChange={setTab} onQR={() => setRoute('qr')} />}
+        </div>
+      </div>
+      <div className="label">Pagali Wallet · click-thru prototype</div>
+      <div className="pill">
+        {[
+          ['onboard', 'Onboarding'],
+          ['login', 'Login PIN'],
+          ['home', 'Home'],
+          ['send', 'Enviar (P2P)'],
+          ['qr', 'QR (P2M)'],
+        ].map(([id, l]) => (
+          <button key={id} className={route === id ? 'on' : ''} onClick={() => setRoute(id)}>{l}</button>
+        ))}
+      </div>
+    </div>
+  );
+}
+ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+</script>
+</body>
+</html>
