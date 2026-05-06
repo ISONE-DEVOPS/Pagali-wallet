@@ -11,6 +11,9 @@ import 'screens/confirm_screen.dart';
 import 'screens/success_screen.dart';
 import 'screens/qr_scan_screen.dart';
 import 'screens/merchant_pay_screen.dart';
+import 'services/api_client.dart';
+
+final _api = ApiClient();
 
 void main() => runApp(const PagaliApp());
 
@@ -85,7 +88,7 @@ class _SplashState extends State<_Splash> {
 
   void _gotoQR(BuildContext c) {
     Navigator.of(c).push(MaterialPageRoute(
-      builder: (_) => QRScanScreen(onDetected: (m) => _gotoMerchantPay(c, m)),
+      builder: (_) => QRScanScreen(api: _api, onDetected: (m) => _gotoMerchantPay(c, m)),
     ));
   }
 
