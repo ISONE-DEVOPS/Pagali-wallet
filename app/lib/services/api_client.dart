@@ -83,4 +83,18 @@ class ApiClient {
   // ─── QR service (EMVCo TLV parser) ─────────────────────────────────────────
   Future<Map<String, dynamic>> parseQr(String qrString) =>
     _post('$qrServiceBase/qr/parse', {'qrString': qrString});
+
+  // ─── G2P (Government-to-Person) ─────────────────────────────────────────────
+  Future<Map<String, dynamic>> createG2PBatch({
+    required String program,
+    required List<Map<String, String>> beneficiaries,
+    String? disbursedBy,
+  }) => _post('$coreConnectorBase/g2p/batches', {
+    'program': program,
+    'disbursedBy': disbursedBy ?? 'Governo de Cabo Verde',
+    'beneficiaries': beneficiaries,
+  });
+
+  Future<Map<String, dynamic>> getG2PBatch(String batchId) =>
+    _get('$coreConnectorBase/g2p/batches/$batchId');
 }
