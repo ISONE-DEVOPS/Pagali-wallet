@@ -13,6 +13,7 @@ class SuccessScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final amt = tx['amount'] as num;
+    final txId = tx['transferId'] as String?;
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(child: Padding(
@@ -34,7 +35,7 @@ class SuccessScreen extends StatelessWidget {
           ),
           const SizedBox(height: 6),
           Text(
-            'ID: T-${DateTime.now().millisecondsSinceEpoch.toRadixString(36).toUpperCase()}',
+            'ID: ${txId ?? 'N/A'}',
             style: const TextStyle(fontFamily: 'monospace', fontSize: 11, color: PagaliColors.fgLight),
           ),
           const Spacer(),

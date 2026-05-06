@@ -23,12 +23,13 @@ class _SendScreenState extends State<SendScreen> {
   final _amount = TextEditingController(text: '2500');
   final _note = TextEditingController();
   String _selectedName = 'João Monteiro';
+  String _selectedMsisdn = '2389002';
 
-  // Static recents — in production these come from the core-connector payee lookup.
+  // Recentes — MSISDNs alinhados com o backend (core-connector/src/data/accounts.js)
   final _recents = const [
-    {'name': 'João Monteiro', 'phone': '+238 989 0002'},
-    {'name': 'Maria Tavares', 'phone': '+238 989 0003'},
-    {'name': 'Carlos Évora',  'phone': '+238 989 0004'},
+    {'name': 'João Monteiro', 'msisdn': '2389002', 'phone': '+238 938 9002'},
+    {'name': 'Maria Tavares', 'msisdn': '2389003', 'phone': '+238 938 9003'},
+    {'name': 'Carlos Évora',  'msisdn': '2389004', 'phone': '+238 938 9004'},
   ];
 
   @override
@@ -67,6 +68,7 @@ class _SendScreenState extends State<SendScreen> {
                   setState(() {
                     _phone.text = _recents[i]['phone']!;
                     _selectedName = _recents[i]['name']!;
+                    _selectedMsisdn = _recents[i]['msisdn']!;
                     _step = 1;
                   });
                 },
@@ -126,6 +128,7 @@ class _SendScreenState extends State<SendScreen> {
         label: 'Confirmar e enviar', fullWidth: true,
         onPressed: () => widget.onContinue({
           'name': _selectedName,
+          'msisdn': _selectedMsisdn,
           'phone': _phone.text,
           'amount': num.tryParse(_amount.text) ?? 0,
           'note': _note.text,

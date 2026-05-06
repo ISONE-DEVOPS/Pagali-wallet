@@ -12,8 +12,10 @@ import 'screens/success_screen.dart';
 import 'screens/qr_scan_screen.dart';
 import 'screens/merchant_pay_screen.dart';
 import 'services/api_client.dart';
+import 'services/transfer_service.dart';
 
 final _api = ApiClient();
+final _transfer = TransferService(_api);
 
 void main() => runApp(const PagaliApp());
 
@@ -76,7 +78,18 @@ class _SplashState extends State<_Splash> {
 
   void _gotoConfirm(BuildContext c, Map<String, dynamic> tx) {
     Navigator.of(c).push(MaterialPageRoute(
-      builder: (_) => ConfirmScreen(tx: tx, onConfirm: () => _gotoSuccess(c, tx)),
+      builder: (_) => ConfirmScreen(
+        tx: tx,
+        onConfirm: () async {
+          final receipt = await _transfer.sendP2P(
+            payerMsisdn: '2389001',
+            payeeMsisdn: tx['msisdn'] as String,
+            amount: tx['amount'] as num,
+            note: tx['note'] as String?,
+          );
+          if (c.mounted) _gotoSuccess(c, {...tx, ...receipt});
+        },
+      ),
     ));
   }
 
