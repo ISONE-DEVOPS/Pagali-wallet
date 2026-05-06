@@ -7,9 +7,10 @@ class PagaliBottomNav extends StatelessWidget {
   final String active;
   final ValueChanged<String> onChange;
   final VoidCallback onQR;
+  final VoidCallback? onMerchantQR;
 
   const PagaliBottomNav({
-    super.key, required this.active, required this.onChange, required this.onQR,
+    super.key, required this.active, required this.onChange, required this.onQR, this.onMerchantQR,
   });
 
   @override
@@ -63,13 +64,14 @@ class PagaliBottomNav extends StatelessWidget {
   Widget _qrFab() {
     return GestureDetector(
       onTap: onQR,
+      onLongPress: onMerchantQR,
       child: Transform.translate(
         offset: const Offset(0, -22),
         child: Container(
           width: 56, height: 56,
           decoration: BoxDecoration(
             color: PagaliColors.lime, shape: BoxShape.circle,
-            boxShadow: [BoxShadow(color: PagaliColors.lime.withOpacity(.5), blurRadius: 18, offset: const Offset(0, 8))],
+            boxShadow: [BoxShadow(color: PagaliColors.lime.withValues(alpha: .5), blurRadius: 18, offset: const Offset(0, 8))],
           ),
           child: const Icon(Icons.qr_code_scanner, color: Color(0xFF1A1A1A), size: 26),
         ),
