@@ -124,23 +124,6 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _quickActions() {
-    Widget act(IconData i, String l, String a) => Expanded(child: GestureDetector(
-      onTap: () => widget.onAction(a),
-      behavior: HitTestBehavior.opaque,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
-        child: Column(children: [
-          Container(
-            width: 44, height: 44,
-            decoration: const BoxDecoration(color: PagaliColors.purple50, shape: BoxShape.circle),
-            child: const Icon(null), // overridden below
-          ).copyWithIcon(i),
-          const SizedBox(height: 8),
-          Text(l, style: PagaliText.caption.copyWith(color: PagaliColors.fgDefault, fontWeight: FontWeight.w500, fontSize: 12)),
-        ]),
-      ),
-    ));
-
     return PCard(
       padding: const EdgeInsets.all(14),
       child: Row(children: [
@@ -282,9 +265,4 @@ class _HomeScreenState extends State<HomeScreen> {
     if (diff.inDays == 1) return 'ontem';
     return '${diff.inDays} dias';
   }
-}
-
-// helper to set icon on a Container — keeps the home _quickActions readable
-extension on Container {
-  Container copyWithIcon(IconData icon) => this; // (vestigial — kept for older call site; not used)
 }
