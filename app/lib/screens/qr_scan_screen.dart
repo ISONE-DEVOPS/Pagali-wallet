@@ -36,6 +36,22 @@ class _QRScanScreenState extends State<QRScanScreen> {
     }
   }
 
+  // QR do Mercado Sucupira — para testar no emulador sem câmara
+  static const _demoQR = '00020101021126390014com.pagali.p2m0107BCVCVCV0206MER0015204541153031325802CV5916Mercado Sucupira6005Praia6304ABB4';
+
+  Future<void> _simulateQR() async {
+    setState(() { _busy = true; _error = null; });
+    try {
+      final parsed = await widget.api.parseQr(_demoQR);
+      if (!mounted) return;
+      widget.onDetected(parsed);
+    } on ApiException catch (e) {
+      setState(() { _error = 'Erro (${e.status})'; _busy = false; });
+    } catch (e) {
+      setState(() { _error = 'Erro ao simular QR'; _busy = false; });
+    }
+  }
+
   @override
   void dispose() { _controller.dispose(); super.dispose(); }
 
@@ -67,14 +83,22 @@ class _QRScanScreenState extends State<QRScanScreen> {
           left: 0, right: 0, bottom: 28,
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 24),
-            child: Text(
-              _error ?? 'Aponte para o código do comerciante',
-              textAlign: TextAlign.center,
-              style: PagaliText.bodySm.copyWith(
-                color: _error == null ? Colors.white70 : PagaliColors.lime,
-                fontSize: 13,
+            child: Column(mainAxisSize: MainAxisSize.min, children: [
+              Text(
+                _error ?? 'Aponte para o código do comerciante',
+                textAlign: TextAlign.center,
+                style: PagaliText.bodySm.copyWith(
+                  color: _error == null ? Colors.white70 : PagaliColors.lime,
+                  fontSize: 13,
+                ),
               ),
-            ),
+              const SizedBox(height: 12),
+              TextButton.icon(
+                onPressed: _busy ? null : _simulateQR,
+                icon: const Icon(Icons.qr_code_2, color: PagaliColors.lime, size: 18),
+                label: const Text('Simular QR (demo)', style: TextStyle(color: PagaliColors.lime, fontSize: 13)),
+              ),
+            ]),
           ),
         ),
       ]),
