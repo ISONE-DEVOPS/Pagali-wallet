@@ -1,6 +1,7 @@
 // lib/screens/success_screen.dart
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:share_plus/share_plus.dart';
 import '../theme/colors.dart';
 import '../theme/typography.dart';
 import '../widgets/p_button.dart';
@@ -82,7 +83,18 @@ class _SuccessScreenState extends State<SuccessScreen> with SingleTickerProvider
           const Spacer(),
           FadeTransition(opacity: _fade, child: Column(children: [
             Row(children: [
-              Expanded(child: PButton(label: 'Partilhar', variant: PButtonVariant.tertiary, icon: Icons.share_outlined, onPressed: () {}, fullWidth: true)),
+              Expanded(child: PButton(label: 'Partilhar', variant: PButtonVariant.tertiary, icon: Icons.share_outlined, onPressed: () {
+              final amt = widget.tx['amount'] as num;
+              final name = widget.tx['name'] as String? ?? '';
+              final txId = widget.tx['transferId'] as String? ?? '';
+              Share.share(
+                '✅ Pagamento Pagali\n\n'
+                '${Money.cve(amt)} CVE enviados${name.isNotEmpty ? ' a $name' : ''}.\n'
+                'ID: $txId\n\n'
+                'Enviado via Pagali Wallet 🇨🇻',
+                subject: 'Recibo Pagali',
+              );
+            }, fullWidth: true)),
               const SizedBox(width: 10),
               Expanded(child: PButton(label: 'Recibo', variant: PButtonVariant.tertiary, icon: Icons.receipt_long_outlined, onPressed: () {}, fullWidth: true)),
             ]),

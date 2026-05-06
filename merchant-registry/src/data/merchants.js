@@ -10,6 +10,8 @@ const merchants = [
     city: 'Praia',
     phone: '2381234',
     active: true,
+    balance: 0,
+    currency: 'CVE',
     createdAt: new Date().toISOString(),
   },
   {
@@ -20,6 +22,8 @@ const merchants = [
     city: 'Mindelo',
     phone: '2325678',
     active: true,
+    balance: 0,
+    currency: 'CVE',
     createdAt: new Date().toISOString(),
   },
 ];
@@ -38,6 +42,11 @@ function create(data) {
   return merchant;
 }
 
+function creditBalance(id, amount) {
+  const m = merchants.find((m) => m.id === id);
+  if (m) m.balance = parseFloat(((m.balance || 0) + parseFloat(amount)).toFixed(2));
+}
+
 function update(id, data) {
   const idx = merchants.findIndex((m) => m.id === id);
   if (idx === -1) return null;
@@ -52,4 +61,4 @@ function remove(id) {
   return true;
 }
 
-module.exports = { findAll, findById, create, update, remove };
+module.exports = { findAll, findById, create, update, remove, creditBalance };

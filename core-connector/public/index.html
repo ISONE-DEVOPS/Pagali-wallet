@@ -4,6 +4,7 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
 <title>Pagali — Dashboard</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <style>
   :root {
     --purple: #6233A0; --purple-50: #F1ECF8; --purple-700: #4F2A82;
@@ -98,6 +99,18 @@
     <div class="stat-card"><div class="stat-label">Volume Total (CVE)</div><div class="stat-value" id="s-volume">—</div><div class="stat-sub">todos os tipos</div></div>
     <div class="stat-card"><div class="stat-label">Pagamentos P2M</div><div class="stat-value" id="s-p2m">—</div><div class="stat-sub">comerciantes</div></div>
     <div class="stat-card"><div class="stat-label">Remessas FX</div><div class="stat-value" id="s-fx">—</div><div class="stat-sub">internacionais</div></div>
+  </div>
+
+  <!-- Charts -->
+  <div class="grid" style="margin-bottom:20px">
+    <div class="card">
+      <div class="card-header"><span class="card-title">Volume por Tipo (CVE)</span></div>
+      <div style="padding:16px"><canvas id="chart-kind" height="160"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-header"><span class="card-title">Transações em tempo real</span></div>
+      <div style="padding:16px"><canvas id="chart-time" height="160"></canvas></div>
+    </div>
   </div>
 
   <!-- Tabs -->
@@ -209,6 +222,7 @@ async function loadAll() {
     document.getElementById('s-fx').textContent = allTx.filter(t=>t.kind==='FX').length;
 
     renderTx();
+    updateCharts(allTx);
 
     // G2P
     document.getElementById('g2p-count').textContent = g2pRes.length;
@@ -255,6 +269,64 @@ async function loadAll() {
   } catch(e) { console.error(e); }
 }
 
+// ── Charts ──────────────────────────────────────────────────────────────────
+let kindChart, timeChart;
+
+function initCharts() {
+  const kindCtx = document.getElementById('chart-kind');
+  kindChart = new Chart(kindCtx, {
+    type: 'bar',
+    data: {
+      labels: ['P2P', 'P2M', 'G2P', 'FX'],
+      datasets: [{
+        label: 'Volume CVE',
+        data: [0, 0, 0, 0],
+        backgroundColor: ['#6233A0', '#B4BF09', '#2BD9A8', '#FFC857'],
+        borderRadius: 6,
+      }]
+    },
+    options: { responsive: true, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { callback: v => v.toLocaleString('pt-CV') } } } }
+  });
+
+  const timeCtx = document.getElementById('chart-time');
+  timeChart = new Chart(timeCtx, {
+    type: 'line',
+    data: {
+      labels: [],
+      datasets: [{
+        label: 'Nº Transações',
+        data: [],
+        borderColor: '#6233A0',
+        backgroundColor: 'rgba(98,51,160,0.08)',
+        fill: true,
+        tension: 0.4,
+        pointRadius: 4,
+        pointBackgroundColor: '#6233A0',
+      }]
+    },
+    options: { responsive: true, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } } }
+  });
+}
+
+const _history = []; // rolling 10-point count history
+
+function updateCharts(txs) {
+  // Volume by kind
+  const vol = { P2P: 0, P2M: 0, G2P: 0, FX: 0 };
+  txs.forEach(t => { const k = t.kind || 'P2P'; if (vol[k] !== undefined) vol[k] += Number(t.amount) || 0; });
+  kindChart.data.datasets[0].data = [vol.P2P, vol.P2M, vol.G2P, vol.FX];
+  kindChart.update('none');
+
+  // Time series (rolling count)
+  const now = new Date().toLocaleTimeString('pt-CV', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+  _history.push({ t: now, n: txs.length });
+  if (_history.length > 10) _history.shift();
+  timeChart.data.labels = _history.map(h => h.t);
+  timeChart.data.datasets[0].data = _history.map(h => h.n);
+  timeChart.update('none');
+}
+
+initCharts();
 loadAll();
 setInterval(loadAll, 3000);
 </script>

@@ -1,6 +1,7 @@
 const express = require('express');
 const merchantRoutes = require('./routes/merchants');
 const payments = require('./data/payments');
+const { creditBalance } = require('./data/merchants');
 
 const app = express();
 app.use(express.json());
@@ -13,6 +14,7 @@ app.post('/payments/notify', (req, res) => {
   const { merchantId, transferId, amount, currency, fee, payerFsp, createdAt } = req.body;
   if (!merchantId || !transferId) return res.status(400).json({ error: 'merchantId e transferId obrigatórios' });
   payments.record({ merchantId, transferId, amount, currency, fee, payerFsp, createdAt });
+  creditBalance(merchantId, amount);
   console.log(`[PAGAMENTO] ${merchantId} recebeu ${amount} ${currency} | TX: ${transferId}`);
   return res.status(200).json({ ok: true });
 });

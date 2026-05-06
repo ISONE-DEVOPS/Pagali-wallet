@@ -82,6 +82,12 @@ class ApiClient {
   Future<Map<String, dynamic>> getMerchant(String merchantId) =>
     _get('$merchantRegistryBase/merchants/$merchantId');
 
+  Future<List<Map<String, dynamic>>> getMerchantPayments(String merchantId) async {
+    final r = await _http.get(Uri.parse('$merchantRegistryBase/payments/$merchantId'), headers: _headers());
+    if (r.statusCode >= 400) throw ApiException(r.statusCode, r.body);
+    return (jsonDecode(r.body) as List).cast<Map<String, dynamic>>();
+  }
+
   // ─── QR service (EMVCo TLV parser) ─────────────────────────────────────────
   Future<Map<String, dynamic>> parseQr(String qrString) =>
     _post('$qrServiceBase/qr/parse', {'qrString': qrString});
