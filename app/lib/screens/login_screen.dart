@@ -87,16 +87,24 @@ class _LoginScreenState extends State<LoginScreen> {
                   ],
                 ),
               ),
-              GridView.count(
-                crossAxisCount: 3, shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                crossAxisSpacing: 8, mainAxisSpacing: 8,
-                childAspectRatio: 2.1,
-                children: [
-                  ...['1','2','3','4','5','6','7','8','9'].map(_key),
-                  const SizedBox.shrink(), _key('0'), _key('del'),
+              Column(children: [
+                for (final row in [['1','2','3'],['4','5','6'],['7','8','9']]) ...[
+                  Row(children: [
+                    for (int i = 0; i < row.length; i++) ...[
+                      Expanded(child: _key(row[i])),
+                      if (i < row.length - 1) const SizedBox(width: 8),
+                    ],
+                  ]),
+                  const SizedBox(height: 8),
                 ],
-              ),
+                Row(children: [
+                  const Spacer(),
+                  const SizedBox(width: 8),
+                  Expanded(flex: 2, child: _key('0')),
+                  const SizedBox(width: 8),
+                  Expanded(child: _key('del')),
+                ]),
+              ]),
               const SizedBox(height: 12),
               TextButton(
                 onPressed: widget.onAuthenticated,
