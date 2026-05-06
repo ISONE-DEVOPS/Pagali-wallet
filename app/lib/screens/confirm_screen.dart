@@ -25,7 +25,7 @@ class ConfirmScreen extends StatelessWidget {
             const SizedBox(height: 12),
             PAvatar(name: tx['name'], size: 72),
             const SizedBox(height: 14),
-            Text('A enviar a', style: PagaliText.caption),
+            const Text('A enviar a', style: PagaliText.caption),
             const SizedBox(height: 4),
             Text(tx['name'], style: PagaliText.h3),
             Text(tx['phone'] ?? '', style: PagaliText.caption),
@@ -37,7 +37,7 @@ class ConfirmScreen extends StatelessWidget {
               _row('Total', '${Money.cve(amt)} CVE', emphasis: true),
               if ((tx['note'] as String?)?.isNotEmpty == true) ...[
                 const Divider(height: 16, color: Color(0x10000000)),
-                Align(alignment: Alignment.centerLeft, child: Text('Nota', style: PagaliText.caption)),
+                const Align(alignment: Alignment.centerLeft, child: Text('Nota', style: PagaliText.caption)),
                 const SizedBox(height: 2),
                 Align(alignment: Alignment.centerLeft, child: Text(tx['note'], style: PagaliText.bodySm)),
               ],
@@ -58,7 +58,7 @@ class ConfirmScreen extends StatelessWidget {
       child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
         Text(l, style: PagaliText.bodySm.copyWith(color: emphasis ? PagaliColors.fgDefault : PagaliColors.fgLight, fontSize: 14)),
         Text(r, style: emphasis
-          ? TextStyle(fontFamily: PagaliText.family, fontWeight: FontWeight.w700, color: PagaliColors.purple, fontFeatures: const [FontFeature.tabularFigures()])
+          ? const TextStyle(fontFamily: PagaliText.family, fontWeight: FontWeight.w700, color: PagaliColors.purple, fontFeatures: [FontFeature.tabularFigures()])
           : PagaliText.bodySm.copyWith(color: PagaliColors.fgDefault, fontWeight: FontWeight.w500),
         ),
       ]),

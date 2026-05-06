@@ -106,7 +106,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         Icon(icon, size: 20, color: PagaliColors.fgMuted),
         const SizedBox(width: 14),
         Expanded(child: Text(label, style: PagaliText.bodySm.copyWith(color: PagaliColors.fgDefault, fontWeight: FontWeight.w500, fontSize: 15))),
-        Switch(value: value, onChanged: onChanged, activeColor: PagaliColors.purple),
+        Switch(value: value, onChanged: onChanged, activeThumbColor: PagaliColors.purple),
       ]),
     );
   }

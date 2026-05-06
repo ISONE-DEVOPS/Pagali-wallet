@@ -53,7 +53,7 @@ class _SendScreenState extends State<SendScreen> {
       children: [
         PField(label: 'Para (número de telemóvel)', controller: _phone, keyboardType: TextInputType.phone, prefix: const Icon(Icons.phone_outlined, size: 16, color: PagaliColors.fgLight)),
         const SizedBox(height: 20),
-        Text('RECENTES', style: PagaliText.label),
+        const Text('RECENTES', style: PagaliText.label),
         const SizedBox(height: 10),
         PCard(padding: EdgeInsets.zero, child: Column(
           children: [
@@ -106,9 +106,9 @@ class _SendScreenState extends State<SendScreen> {
                 keyboardType: TextInputType.number,
                 textAlign: TextAlign.center,
                 decoration: const InputDecoration(border: InputBorder.none, filled: false, contentPadding: EdgeInsets.zero),
-                style: TextStyle(
+                style: const TextStyle(
                   fontFamily: PagaliText.family, fontSize: 48, fontWeight: FontWeight.w700,
-                  color: PagaliColors.purple, fontFeatures: const [FontFeature.tabularFigures()],
+                  color: PagaliColors.purple, fontFeatures: [FontFeature.tabularFigures()],
                 ),
               ),
             ),

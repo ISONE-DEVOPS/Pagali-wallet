@@ -25,7 +25,7 @@ class SuccessScreen extends StatelessWidget {
             child: const Icon(Icons.check, color: Color(0xFF0E8B66), size: 48),
           ),
           const SizedBox(height: 16),
-          Text('Pagamento concluído', style: PagaliText.h3),
+          const Text('Pagamento concluído', style: PagaliText.h3),
           const SizedBox(height: 6),
           Text(
             '${Money.cve(amt)} CVE enviados a ${tx['name']}.',

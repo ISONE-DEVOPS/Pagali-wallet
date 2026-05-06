@@ -74,9 +74,9 @@ class _KycScreenState extends State<KycScreen> {
     switch (_step) {
       case 0:
         return ListView(children: [
-          Text('Dados pessoais', style: PagaliText.h3),
+          const Text('Dados pessoais', style: PagaliText.h3),
           const SizedBox(height: 4),
-          Text('Use o nome exacto que consta no seu BI.', style: PagaliText.bodySm),
+          const Text('Use o nome exacto que consta no seu BI.', style: PagaliText.bodySm),
           const SizedBox(height: 16),
           PField(label: 'Nome completo', controller: _name),
           const SizedBox(height: 12),
@@ -86,9 +86,9 @@ class _KycScreenState extends State<KycScreen> {
         ]);
       case 1:
         return ListView(children: [
-          Text('Bilhete de Identidade', style: PagaliText.h3),
+          const Text('Bilhete de Identidade', style: PagaliText.h3),
           const SizedBox(height: 4),
-          Text('Tire foto da frente e do verso do seu BI.', style: PagaliText.bodySm),
+          const Text('Tire foto da frente e do verso do seu BI.', style: PagaliText.bodySm),
           const SizedBox(height: 16),
           _docTile('Frente do BI', _docFront, () => setState(() => _docFront = true)),
           const SizedBox(height: 10),
@@ -96,9 +96,9 @@ class _KycScreenState extends State<KycScreen> {
         ]);
       case 2:
         return ListView(children: [
-          Text('Selfie de verificação', style: PagaliText.h3),
+          const Text('Selfie de verificação', style: PagaliText.h3),
           const SizedBox(height: 4),
-          Text('Olhe para a câmara e siga as instruções.', style: PagaliText.bodySm),
+          const Text('Olhe para a câmara e siga as instruções.', style: PagaliText.bodySm),
           const SizedBox(height: 16),
           GestureDetector(
             onTap: () => setState(() => _selfie = true),
@@ -116,7 +116,7 @@ class _KycScreenState extends State<KycScreen> {
         ]);
       default:
         return ListView(children: [
-          Text('Confirme os seus dados', style: PagaliText.h3),
+          const Text('Confirme os seus dados', style: PagaliText.h3),
           const SizedBox(height: 16),
           PCard(child: Column(children: [
             _row('Nome', _name.text.isEmpty ? '—' : _name.text),

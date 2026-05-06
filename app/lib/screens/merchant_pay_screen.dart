@@ -64,9 +64,9 @@ class _MerchantPayScreenState extends State<MerchantPayScreen> {
                     keyboardType: TextInputType.number,
                     textAlign: TextAlign.center,
                     decoration: const InputDecoration(border: InputBorder.none, filled: false, contentPadding: EdgeInsets.zero),
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontFamily: PagaliText.family, fontSize: 48, fontWeight: FontWeight.w700,
-                      color: Colors.white, fontFeatures: const [FontFeature.tabularFigures()],
+                      color: Colors.white, fontFeatures: [FontFeature.tabularFigures()],
                     ),
                   ),
                 ),

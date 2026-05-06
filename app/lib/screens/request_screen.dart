@@ -31,7 +31,7 @@ class _RequestScreenState extends State<RequestScreen> {
           const SizedBox(height: 14),
           PField(label: 'Motivo', controller: _note, onChanged: (_) => setState(() {})),
           const SizedBox(height: 20),
-          Text('PARTILHAR', style: PagaliText.label),
+          const Text('PARTILHAR', style: PagaliText.label),
           const SizedBox(height: 8),
           PCard(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             // QR placeholder (use qr_flutter when available)
@@ -42,7 +42,7 @@ class _RequestScreenState extends State<RequestScreen> {
               child: const Icon(Icons.qr_code_2, size: 140, color: PagaliColors.purple),
             )),
             const SizedBox(height: 14),
-            Text('LINK', style: PagaliText.label),
+            const Text('LINK', style: PagaliText.label),
             const SizedBox(height: 4),
             Container(
               width: double.infinity,

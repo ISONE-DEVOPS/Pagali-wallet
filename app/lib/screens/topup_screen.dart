@@ -29,7 +29,7 @@ class _TopUpScreenState extends State<TopUpScreen> {
         child: Padding(
           padding: const EdgeInsets.all(20),
           child: ListView(children: [
-            Text('MONTANTE', style: PagaliText.label),
+            const Text('MONTANTE', style: PagaliText.label),
             const SizedBox(height: 8),
             PField(controller: _amount, keyboardType: TextInputType.number, prefix: const Padding(padding: EdgeInsets.only(left: 4, right: 8), child: Text('CVE', style: TextStyle(fontFamily: PagaliText.family, color: PagaliColors.fgLight, fontWeight: FontWeight.w500)))),
             const SizedBox(height: 12),
@@ -45,7 +45,7 @@ class _TopUpScreenState extends State<TopUpScreen> {
               ),
             ]),
             const SizedBox(height: 20),
-            Text('MÉTODO', style: PagaliText.label),
+            const Text('MÉTODO', style: PagaliText.label),
             const SizedBox(height: 8),
             PCard(padding: EdgeInsets.zero, child: Column(children: [
               _methodTile('card', Icons.credit_card, 'Cartão', '•••• 8821 · BCV'),
