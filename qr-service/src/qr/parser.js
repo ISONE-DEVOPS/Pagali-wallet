@@ -3,8 +3,8 @@ const { crc16 } = require('./crc');
 
 function parse(qrString) {
   const crcTag = qrString.slice(-4);
-  const payload = qrString.slice(0, -4);
-  const expectedCrc = crc16(qrString.slice(0, -4) + '6304');
+  const payload = qrString.slice(0, -4); // inclui "6304" no fim — input correcto para CRC
+  const expectedCrc = crc16(payload);
 
   if (crcTag !== expectedCrc) {
     throw new Error(`CRC mismatch: got ${crcTag}, expected ${expectedCrc}`);

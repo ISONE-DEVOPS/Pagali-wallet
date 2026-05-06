@@ -21,7 +21,7 @@ class _QRScanScreenState extends State<QRScanScreen> {
   String? _error;
 
   static const _demoQR =
-      '00020101021126390014com.pagali.p2m0107BCVCVCV0206MER0015204541153031325802CV5916Mercado Sucupira6005Praia6304ABB4';
+      '00020101021126390014com.pagali.p2m0107BCVCVCV0206MER0015204541153031325802CV5916Mercado Sucupira6005Praia6304E794';
 
   @override
   void initState() {

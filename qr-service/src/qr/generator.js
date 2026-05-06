@@ -25,7 +25,8 @@ function generate({ merchantId, dfspSwift, merchantName, merchantCity, mcc, curr
     encode('60', merchantCity.slice(0, 15)) +
     encode('63', '0000'); // placeholder for CRC
 
-  const checksum = crc16(payload);
+  // CRC input = tudo até "6304" inclusive, sem o valor placeholder
+  const checksum = crc16(payload.slice(0, -4));
   return payload.slice(0, -4) + checksum;
 }
 
