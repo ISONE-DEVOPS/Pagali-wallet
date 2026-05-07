@@ -377,31 +377,27 @@
       <div class="card">
         <div class="card-header"><span class="card-title">✅ Implementado (Hackathon)</span></div>
         <div style="padding:4px 0">
-          ${[
-            ['FSPIOP 3-phase flow','Discovery → Quote → Transfer'],
-            ['Account Lookup Service','GET /parties/MSISDN + /BUSINESS'],
-            ['Quoting Service','Cálculo de taxa 0.5%'],
-            ['Central Ledger (sim.)','Reserve + Commit em memória'],
-            ['EMVCo QR Standard','TLV + CRC-16/CCITT'],
-            ['Settlement Engine','NDC + janelas + matriz FSP'],
-            ['8 Use Cases','P2P P2M G2P FX R2P Agent Tax CBDC'],
-          ].map(([t,s])=>`<div class="brow"><div><div style="font-size:13px;font-weight:500">${t}</div><div class="id">${s}</div></div><span style="color:var(--success);font-size:16px">✓</span></div>`).join('')}
+          <div class="brow"><div><div style="font-size:13px;font-weight:500">FSPIOP 3-phase flow</div><div class="id">Discovery → Quote → Transfer</div></div><span style="color:var(--success);font-size:16px">✓</span></div>
+          <div class="brow"><div><div style="font-size:13px;font-weight:500">Account Lookup Service</div><div class="id">GET /parties/MSISDN + /BUSINESS</div></div><span style="color:var(--success);font-size:16px">✓</span></div>
+          <div class="brow"><div><div style="font-size:13px;font-weight:500">Quoting Service</div><div class="id">Cálculo de taxa 0.5%</div></div><span style="color:var(--success);font-size:16px">✓</span></div>
+          <div class="brow"><div><div style="font-size:13px;font-weight:500">Central Ledger (sim.)</div><div class="id">Reserve + Commit em memória</div></div><span style="color:var(--success);font-size:16px">✓</span></div>
+          <div class="brow"><div><div style="font-size:13px;font-weight:500">EMVCo QR Standard</div><div class="id">TLV + CRC-16/CCITT</div></div><span style="color:var(--success);font-size:16px">✓</span></div>
+          <div class="brow"><div><div style="font-size:13px;font-weight:500">Settlement Engine</div><div class="id">NDC + janelas + matriz FSP</div></div><span style="color:var(--success);font-size:16px">✓</span></div>
+          <div class="brow"><div><div style="font-size:13px;font-weight:500">9 Use Cases</div><div class="id">P2P P2M G2P FX R2P Agent Tax CBDC TopUp</div></div><span style="color:var(--success);font-size:16px">✓</span></div>
         </div>
       </div>
 
       <div class="card">
         <div class="card-header"><span class="card-title">🔜 Produção (Piloto BCV)</span></div>
         <div style="padding:4px 0">
-          ${[
-            ['sdk-scheme-adapter real','Bridge DFSP ↔ Mojaloop Hub'],
-            ['mTLS (mutual TLS)','Certificados via MCM'],
-            ['JWS Signing','Assinatura RSA-SHA256 por pedido'],
-            ['Mojaloop Hub real','Kubernetes + Helm charts'],
-            ['Percona MySQL','Substituir stores em memória'],
-            ['Apache Kafka','Event streaming async'],
-            ['MCM (cert exchange)','Mojaloop Connection Manager'],
-            ['HSM Integration','Hardware Security Module'],
-          ].map(([t,s])=>`<div class="brow"><div><div style="font-size:13px;font-weight:500">${t}</div><div class="id">${s}</div></div><span style="color:var(--warning);font-size:14px">→</span></div>`).join('')}
+          <div class="brow"><div><div style="font-size:13px;font-weight:500">sdk-scheme-adapter real</div><div class="id">Bridge DFSP ↔ Mojaloop Hub</div></div><span style="color:var(--warning);font-size:14px">→</span></div>
+          <div class="brow"><div><div style="font-size:13px;font-weight:500">mTLS (mutual TLS)</div><div class="id">Certificados via MCM</div></div><span style="color:var(--warning);font-size:14px">→</span></div>
+          <div class="brow"><div><div style="font-size:13px;font-weight:500">JWS Signing</div><div class="id">Assinatura RSA-SHA256 por pedido</div></div><span style="color:var(--warning);font-size:14px">→</span></div>
+          <div class="brow"><div><div style="font-size:13px;font-weight:500">Mojaloop Hub real</div><div class="id">Kubernetes + Helm charts</div></div><span style="color:var(--warning);font-size:14px">→</span></div>
+          <div class="brow"><div><div style="font-size:13px;font-weight:500">Percona MySQL</div><div class="id">Substituir stores em memória</div></div><span style="color:var(--warning);font-size:14px">→</span></div>
+          <div class="brow"><div><div style="font-size:13px;font-weight:500">Apache Kafka</div><div class="id">Event streaming async</div></div><span style="color:var(--warning);font-size:14px">→</span></div>
+          <div class="brow"><div><div style="font-size:13px;font-weight:500">MCM (cert exchange)</div><div class="id">Mojaloop Connection Manager</div></div><span style="color:var(--warning);font-size:14px">→</span></div>
+          <div class="brow"><div><div style="font-size:13px;font-weight:500">HSM Integration</div><div class="id">Hardware Security Module</div></div><span style="color:var(--warning);font-size:14px">→</span></div>
         </div>
       </div>
 
@@ -409,21 +405,14 @@
       <div class="card" style="grid-column:1/-1">
         <div class="card-header"><span class="card-title">Stack Tecnológico</span></div>
         <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;padding:16px">
-          ${[
-            ['📱','App Mobile','Flutter / Dart 3.11'],
-            ['⚙️','Core Connector','Node.js + Express'],
-            ['🔐','QR Standard','EMVCo TLV + CRC-16'],
-            ['📡','Protocolo','FSPIOP API (Mojaloop)'],
-            ['💱','FX Rates','EUR/USD/GBP/BRL → CVE'],
-            ['₠','CBDC','Escudo Digital (BCV)'],
-            ['🏦','Settlement','Net Deferred + NDC'],
-            ['📜','Licença','Apache 2.0 (open-source)'],
-          ].map(([e,t,s])=>`
-            <div style="background:var(--purple-50);border-radius:10px;padding:12px">
-              <div style="font-size:22px;margin-bottom:4px">${e}</div>
-              <div style="font-size:13px;font-weight:600;color:var(--purple)">${t}</div>
-              <div style="font-size:11px;color:var(--muted)">${s}</div>
-            </div>`).join('')}
+          <div style="background:var(--purple-50);border-radius:10px;padding:12px"><div style="font-size:22px;margin-bottom:4px">📱</div><div style="font-size:13px;font-weight:600;color:var(--purple)">App Mobile</div><div style="font-size:11px;color:var(--muted)">Flutter / Dart 3.11</div></div>
+          <div style="background:var(--purple-50);border-radius:10px;padding:12px"><div style="font-size:22px;margin-bottom:4px">⚙️</div><div style="font-size:13px;font-weight:600;color:var(--purple)">Core Connector</div><div style="font-size:11px;color:var(--muted)">Node.js + Express</div></div>
+          <div style="background:var(--purple-50);border-radius:10px;padding:12px"><div style="font-size:22px;margin-bottom:4px">🔐</div><div style="font-size:13px;font-weight:600;color:var(--purple)">QR Standard</div><div style="font-size:11px;color:var(--muted)">EMVCo TLV + CRC-16</div></div>
+          <div style="background:var(--purple-50);border-radius:10px;padding:12px"><div style="font-size:22px;margin-bottom:4px">📡</div><div style="font-size:13px;font-weight:600;color:var(--purple)">Protocolo</div><div style="font-size:11px;color:var(--muted)">FSPIOP API (Mojaloop)</div></div>
+          <div style="background:var(--purple-50);border-radius:10px;padding:12px"><div style="font-size:22px;margin-bottom:4px">💱</div><div style="font-size:13px;font-weight:600;color:var(--purple)">FX Rates</div><div style="font-size:11px;color:var(--muted)">EUR/USD/GBP/BRL → CVE</div></div>
+          <div style="background:var(--purple-50);border-radius:10px;padding:12px"><div style="font-size:22px;margin-bottom:4px">₠</div><div style="font-size:13px;font-weight:600;color:var(--purple)">CBDC</div><div style="font-size:11px;color:var(--muted)">Escudo Digital (BCV)</div></div>
+          <div style="background:var(--purple-50);border-radius:10px;padding:12px"><div style="font-size:22px;margin-bottom:4px">🏦</div><div style="font-size:13px;font-weight:600;color:var(--purple)">Settlement</div><div style="font-size:11px;color:var(--muted)">Net Deferred + NDC</div></div>
+          <div style="background:var(--purple-50);border-radius:10px;padding:12px"><div style="font-size:22px;margin-bottom:4px">📜</div><div style="font-size:13px;font-weight:600;color:var(--purple)">Licença</div><div style="font-size:11px;color:var(--muted)">Apache 2.0 (open-source)</div></div>
         </div>
       </div>
 
