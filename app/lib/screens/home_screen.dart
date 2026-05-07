@@ -77,61 +77,103 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget _hero() {
     return Container(
       decoration: const BoxDecoration(
-        color: PagaliColors.purple,
-        borderRadius: BorderRadius.vertical(bottom: Radius.circular(28)),
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [Color(0xFF7B3FBF), PagaliColors.purple, Color(0xFF4F2A82)],
+        ),
+        borderRadius: BorderRadius.vertical(bottom: Radius.circular(32)),
       ),
-      padding: const EdgeInsets.fromLTRB(20, 14, 20, 28),
+      padding: const EdgeInsets.fromLTRB(20, 14, 20, 32),
       child: SafeArea(
         bottom: false,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Row(children: [
-                  PAvatar(
-                    name: 'Ana Silva', size: 36,
-                    background: Colors.white.withOpacity(.18), foreground: Colors.white,
-                  ),
-                  const SizedBox(width: 10),
-                  Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                    Text('Bem-vinda', style: PagaliText.caption.copyWith(color: Colors.white70)),
-                    Text('Ana Silva', style: PagaliText.bodySm.copyWith(color: Colors.white, fontWeight: FontWeight.w500)),
-                  ]),
-                ]),
-                Container(
-                  width: 38, height: 38,
-                  decoration: BoxDecoration(color: Colors.white.withOpacity(.12), shape: BoxShape.circle),
-                  child: const Icon(Icons.notifications_outlined, color: Colors.white, size: 18),
+            // Avatar + notificações
+            Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+              Row(children: [
+                PAvatar(
+                  name: 'Ana Silva', size: 40,
+                  background: Colors.white.withValues(alpha: .2),
+                  foreground: Colors.white,
                 ),
-              ],
-            ),
-            const SizedBox(height: 22),
+                const SizedBox(width: 12),
+                Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                  Text('Bem-vinda 👋', style: PagaliText.caption.copyWith(color: Colors.white60, fontSize: 12)),
+                  Text('Ana Silva', style: PagaliText.bodySm.copyWith(color: Colors.white, fontWeight: FontWeight.w600, fontSize: 16)),
+                ]),
+              ]),
+              Container(
+                width: 40, height: 40,
+                decoration: BoxDecoration(color: Colors.white.withValues(alpha: .15), shape: BoxShape.circle),
+                child: const Icon(Icons.notifications_outlined, color: Colors.white, size: 20),
+              ),
+            ]),
+
+            const SizedBox(height: 28),
+
+            // Label saldo
             Row(children: [
-              Text('SALDO DISPONÍVEL', style: PagaliText.label.copyWith(color: Colors.white70)),
+              Text('SALDO DISPONÍVEL', style: PagaliText.label.copyWith(color: Colors.white54, letterSpacing: .08)),
               const SizedBox(width: 8),
               GestureDetector(
                 onTap: () => setState(() => _hideBalance = !_hideBalance),
-                child: Icon(_hideBalance ? Icons.visibility_off_outlined : Icons.visibility_outlined, size: 16, color: Colors.white70),
-              ),
-            ]),
-            const SizedBox(height: 4),
-            Row(crossAxisAlignment: CrossAxisAlignment.end, children: [
-              ValueListenableBuilder<num>(
-                valueListenable: WalletService.instance.balance,
-                builder: (_, bal, __) => Text(
-                  _hideBalance ? '••••••' : Money.cve(bal),
-                  style: PagaliText.amount.copyWith(color: Colors.white),
+                child: Icon(
+                  _hideBalance ? Icons.visibility_off_outlined : Icons.visibility_outlined,
+                  size: 15, color: Colors.white54,
                 ),
               ),
-              const SizedBox(width: 6),
-              Padding(
-                padding: const EdgeInsets.only(bottom: 6),
-                child: Text('CVE', style: PagaliText.bodySm.copyWith(color: Colors.white70, fontWeight: FontWeight.w500)),
-              ),
             ]),
-            Text('•••• 8821 · Banco de Cabo Verde', style: PagaliText.caption.copyWith(color: Colors.white70)),
+
+            const SizedBox(height: 6),
+
+            // Valor principal
+            ValueListenableBuilder<num>(
+              valueListenable: WalletService.instance.balance,
+              builder: (_, bal, __) => Row(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Text(
+                    _hideBalance ? '••••••' : Money.cve(bal),
+                    style: const TextStyle(
+                      fontFamily: PagaliText.family,
+                      fontSize: 42, fontWeight: FontWeight.w700,
+                      color: Colors.white, letterSpacing: -1,
+                      fontFeatures: [FontFeature.tabularFigures()],
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 7),
+                    child: Text('CVE', style: PagaliText.bodySm.copyWith(
+                      color: PagaliColors.lime, fontWeight: FontWeight.w700, fontSize: 14,
+                    )),
+                  ),
+                ],
+              ),
+            ),
+
+            const SizedBox(height: 14),
+
+            // Chip do cartão
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: .12),
+                borderRadius: BorderRadius.circular(999),
+                border: Border.all(color: Colors.white.withValues(alpha: .15)),
+              ),
+              child: Row(mainAxisSize: MainAxisSize.min, children: [
+                const Icon(Icons.credit_card_outlined, color: Colors.white70, size: 15),
+                const SizedBox(width: 8),
+                Text('•••• 8821', style: PagaliText.caption.copyWith(color: Colors.white, fontWeight: FontWeight.w600, letterSpacing: 1)),
+                const SizedBox(width: 6),
+                Text('·', style: PagaliText.caption.copyWith(color: Colors.white38)),
+                const SizedBox(width: 6),
+                Text('Banco de Cabo Verde', style: PagaliText.caption.copyWith(color: Colors.white60)),
+              ]),
+            ),
           ],
         ),
       ),
