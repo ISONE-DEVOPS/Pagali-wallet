@@ -11,6 +11,7 @@ const agentRoutes      = require('./routes/agents');
 const taxRoutes        = require('./routes/tax');
 const cbdcRoutes       = require('./routes/cbdc');
 const pispRoutes       = require('./routes/pisp');
+const { seed }         = require('./data/seed');
 
 const path = require('path');
 
@@ -33,5 +34,14 @@ app.use('/cbdc',       cbdcRoutes);
 app.use('/pisp',       pispRoutes);
 app.use('/', payeeRoutes);
 
+// Endpoint para reset + reseed (demo)
+app.post('/demo/reset', (_, res) => {
+  seed();
+  return res.json({ ok: true, message: 'Dados de demo recarregados' });
+});
+
 const PORT = process.env.PORT || 8030;
-app.listen(PORT, () => console.log(`Core Connector listening on port ${PORT}`));
+app.listen(PORT, () => {
+  console.log(`Core Connector listening on port ${PORT}`);
+  seed(); // carrega dados de demo no arranque
+});

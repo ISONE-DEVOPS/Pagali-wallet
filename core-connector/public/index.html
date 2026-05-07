@@ -89,7 +89,10 @@
 
 <header>
   <div class="logo">paga<span>li</span> <span style="font-weight:300;font-size:14px;color:rgba(255,255,255,.6)">dashboard</span></div>
-  <div class="live"><div class="dot"></div> live · atualiza a cada 3s</div>
+  <div style="display:flex;align-items:center;gap:12px">
+    <div class="live"><div class="dot"></div> live · atualiza a cada 3s</div>
+    <button onclick="resetDemo()" style="background:var(--lime);color:#1a1a1a;border:none;border-radius:8px;padding:6px 14px;font-size:12px;font-weight:700;cursor:pointer">🔄 Reset Demo</button>
+  </div>
 </header>
 
 <main>
@@ -742,6 +745,11 @@ function updateCharts(txs) {
   timeChart.data.labels = _history.map(h => h.t);
   timeChart.data.datasets[0].data = _history.map(h => h.n);
   timeChart.update('none');
+}
+
+async function resetDemo() {
+  await fetch('/demo/reset', { method: 'POST' });
+  loadAll(); loadBCV();
 }
 
 initCharts();
