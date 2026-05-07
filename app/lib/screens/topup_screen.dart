@@ -50,7 +50,7 @@ class _TopUpScreenState extends State<TopUpScreen> {
             PCard(padding: EdgeInsets.zero, child: Column(children: [
               _methodTile('card', Icons.credit_card, 'Cartão', '•••• 8821 · BCV'),
               const Divider(height: 1, color: Color(0x10000000)),
-              _methodTile('bank', Icons.account_balance, 'Transferência bancária', 'BCV / Caixa'),
+              _methodTile('bank', Icons.account_balance, 'Transferência bancária', 'BCV / BCNCV'),
               const Divider(height: 1, color: Color(0x10000000)),
               _methodTile('agent', Icons.storefront, 'Agente Pagali', 'Loja parceira'),
             ])),

@@ -3,7 +3,7 @@ const { v4: uuidv4 } = require('uuid');
 
 const NDC_LIMITS = {
   BCVCVCV: 500000, // CVE — Banco Comercial do Atlântico
-  CAIXACV: 300000, // CVE — Caixa Económica de Cabo Verde
+  BCNCV: 300000, // CVE — Banco Caboverdiano de Negócios
   EXTERNAL: 999999,
 };
 

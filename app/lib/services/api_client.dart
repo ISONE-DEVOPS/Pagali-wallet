@@ -68,7 +68,7 @@ class ApiClient {
   }) => _post('$coreConnectorBase/transfers', {
     'transferId': transferId,
     'payer': {'idType': 'MSISDN', 'idValue': payerMsisdn, 'fspId': 'BCVCVCV'},
-    'payee': {'idType': kind == 'P2M' ? 'BUSINESS' : 'MSISDN', 'idValue': payeeMsisdn, 'fspId': 'CAIXACV'},
+    'payee': {'idType': kind == 'P2M' ? 'BUSINESS' : 'MSISDN', 'idValue': payeeMsisdn, 'fspId': 'BCNCV'},
     'amount': amount.toString(),
     'currency': currency,
     'kind': kind,

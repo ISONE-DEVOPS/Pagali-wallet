@@ -2,8 +2,8 @@
 const accounts = [
   { msisdn: '2389001', name: 'Ana Silva', fspId: 'BCVCVCV', active: true },
   { msisdn: '2389002', name: 'João Monteiro', fspId: 'BCVCVCV', active: true },
-  { msisdn: '2389003', name: 'Maria Tavares', fspId: 'CAIXACV', active: true },
-  { msisdn: '2389004', name: 'Carlos Évora', fspId: 'CAIXACV', active: true },
+  { msisdn: '2389003', name: 'Maria Tavares', fspId: 'BCNCV', active: true },
+  { msisdn: '2389004', name: 'Carlos Évora', fspId: 'BCNCV', active: true },
 ];
 
 function findByMsisdn(msisdn) {
