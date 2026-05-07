@@ -184,10 +184,12 @@ class _HomeScreenState extends State<HomeScreen> {
     return PCard(
       padding: const EdgeInsets.all(14),
       child: Row(children: [
-        _quickAction(Icons.arrow_upward,      'Enviar',   'send'),
-        _quickAction(Icons.qr_code_2,         'Meu QR',   'myqr'),
-        _quickAction(Icons.account_balance,   'G2P',      'g2p'),
-        _quickAction(Icons.currency_exchange, 'Remessa',  'fx'),
+        _quickAction(Icons.arrow_upward,       'Enviar',   'send'),
+        _quickAction(Icons.qr_code_2,          'Meu QR',   'myqr'),
+        _quickAction(Icons.account_balance,    'G2P',      'g2p'),
+        _quickAction(Icons.currency_exchange,  'Remessa',  'fx'),
+        _quickAction(Icons.request_page,       'R2P',      'r2p'),
+        _quickAction(Icons.storefront_outlined,'Agentes',  'agent'),
       ]),
     );
   }

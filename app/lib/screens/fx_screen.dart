@@ -83,7 +83,8 @@ class _FxScreenState extends State<FxScreen> {
         fee: (_quote!['fee'] as num).toDouble(),
         payeeMsisdn: _selected['msisdn']!,
       );
-      if (mounted) widget.onSuccess({
+      if (mounted) {
+        widget.onSuccess({
         'name': _selected['name'],
         'phone': _selected['msisdn'],
         'amount': result['targetAmount'],
@@ -91,6 +92,7 @@ class _FxScreenState extends State<FxScreen> {
         'note': 'Remessa $_currency → CVE',
         'kind': 'fx',
       });
+      }
     } catch (_) {
       if (mounted) setState(() { _paying = false; _error = 'Falha na transferência'; });
     }

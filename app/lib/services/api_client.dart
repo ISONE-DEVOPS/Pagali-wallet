@@ -141,6 +141,48 @@ class ApiClient {
     'payeeMsisdn': payeeMsisdn,
   });
 
+  // ─── R2P (Request to Pay) ───────────────────────────────────────────────────
+  Future<Map<String, dynamic>> createR2P({
+    required String merchantId,
+    required String merchantName,
+    required String payerMsisdn,
+    required double amount,
+    String? description,
+  }) => _post('$coreConnectorBase/requests', {
+    'merchantId': merchantId, 'merchantName': merchantName,
+    'payerMsisdn': payerMsisdn, 'amount': amount,
+    'description': description ?? 'Pedido de pagamento',
+  });
+
+  Future<List<Map<String, dynamic>>> getR2PForPayer(String msisdn) async {
+    final r = await _http.get(Uri.parse('$coreConnectorBase/requests/payer/$msisdn'), headers: _headers());
+    if (r.statusCode >= 400) throw ApiException(r.statusCode, r.body);
+    return (jsonDecode(r.body) as List).cast<Map<String, dynamic>>();
+  }
+
+  Future<Map<String, dynamic>> acceptR2P(String requestId) =>
+    _post('$coreConnectorBase/requests/$requestId/accept', {});
+
+  Future<Map<String, dynamic>> rejectR2P(String requestId) =>
+    _post('$coreConnectorBase/requests/$requestId/reject', {});
+
+  // ─── Agent Banking ──────────────────────────────────────────────────────────
+  Future<List<Map<String, dynamic>>> getAgents() async {
+    final r = await _http.get(Uri.parse('$coreConnectorBase/agents'), headers: _headers());
+    if (r.statusCode >= 400) throw ApiException(r.statusCode, r.body);
+    return (jsonDecode(r.body) as List).cast<Map<String, dynamic>>();
+  }
+
+  Future<Map<String, dynamic>> getAgent(String agentId) =>
+    _get('$coreConnectorBase/agents/$agentId');
+
+  Future<Map<String, dynamic>> agentCashIn(String agentId, String customerMsisdn, double amount) =>
+    _post('$coreConnectorBase/agents/$agentId/cash-in', {'customerMsisdn': customerMsisdn, 'amount': amount});
+
+  Future<Map<String, dynamic>> agentCashOut(String agentId, String customerMsisdn, double amount) =>
+    _post('$coreConnectorBase/agents/$agentId/cash-out', {'customerMsisdn': customerMsisdn, 'amount': amount});
+
+  // ─── FX (Cross-Currency) ────────────────────────────────────────────────────
   Future<Map<String, dynamic>> executeFxTransfer({
     required String sourceCurrency,
     required double sourceAmount,

@@ -6,6 +6,8 @@ const payeeRoutes = require('./routes/payee');
 const g2pRoutes   = require('./routes/g2p');
 const fxRoutes         = require('./routes/fx');
 const settlementRoutes = require('./routes/settlement');
+const r2pRoutes        = require('./routes/r2p');
+const agentRoutes      = require('./routes/agents');
 
 const path = require('path');
 
@@ -21,6 +23,8 @@ app.use('/sendmoney', payerRoutes);
 app.use('/g2p', g2pRoutes);
 app.use('/fx',         fxRoutes);
 app.use('/settlement', settlementRoutes);
+app.use('/requests',   r2pRoutes);
+app.use('/agents',     agentRoutes);
 app.use('/', payeeRoutes);
 
 const PORT = process.env.PORT || 8030;
