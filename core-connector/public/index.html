@@ -105,6 +105,9 @@
     <div class="stat-card"><div class="stat-label">R2P Pedidos</div><div class="stat-value" id="s-r2p">—</div><div class="stat-sub">request to pay</div></div>
     <div class="stat-card"><div class="stat-label">Operações Agente</div><div class="stat-value" id="s-agent">—</div><div class="stat-sub">cash-in + cash-out</div></div>
     <div class="stat-card"><div class="stat-label">PISP Iniciações</div><div class="stat-value" id="s-pisp">—</div><div class="stat-sub">third-party payments</div></div>
+    <div class="stat-card"><div class="stat-label">Beneficiários G2P</div><div class="stat-value" id="s-g2p-ben">—</div><div class="stat-sub">subsídios recebidos</div></div>
+    <div class="stat-card"><div class="stat-label">Agentes Activos</div><div class="stat-value" id="s-agents-count">—</div><div class="stat-sub">ilhas sem banco</div></div>
+    <div class="stat-card"><div class="stat-label">Comerciantes</div><div class="stat-value" id="s-merchants">—</div><div class="stat-sub">aceitam QR Pagali</div></div>
   </div>
 
   <!-- Charts -->
@@ -551,7 +554,7 @@ function renderTx() {
 
 async function loadAll() {
   try {
-    const [txRes, g2pRes, merchRes, fxRes, r2pRes, taxRes, cbdcRes, agentsRes, pispRes] = await Promise.all([
+    const [txRes, g2pRes, merchRes, fxRes, r2pRes, taxRes, cbdcRes, agentsRes, pispRes, agentListRes, merchantListRes] = await Promise.all([
       fetch('/transfers').then(r=>r.json()),
       fetch('/g2p/batches').then(r=>r.json()),
       fetch('http://localhost:4002/payments').then(r=>r.json()).catch(()=>[]),
@@ -561,6 +564,8 @@ async function loadAll() {
       fetch('/cbdc/transactions').then(r=>r.json()).catch(()=>[]),
       fetch('/agents/transactions/all').then(r=>r.json()).catch(()=>[]),
       fetch('/pisp/initiations').then(r=>r.json()).catch(()=>[]),
+      fetch('/agents').then(r=>r.json()).catch(()=>[]),
+      fetch('http://localhost:4002/merchants').then(r=>r.json()).catch(()=>[]),
     ]);
 
     allTx = txRes;
@@ -569,6 +574,16 @@ async function loadAll() {
     const vol = allTx.reduce((s,t) => s + (Number(t.amount)||0), 0);
     document.getElementById('s-pisp').textContent = pispRes.length;
     document.getElementById('s-total').textContent = allTx.length + r2pRes.length + taxRes.length + cbdcRes.length + pispRes.length;
+
+    // Beneficiários G2P — total de pessoas que receberam subsídios
+    const g2pBen = g2pRes.reduce((s, b) => s + (b.beneficiaries?.filter(x => x.state === 'SUCCESS').length || 0), 0);
+    document.getElementById('s-g2p-ben').textContent = g2pBen;
+
+    // Agentes activos
+    document.getElementById('s-agents-count').textContent = agentListRes.length;
+
+    // Comerciantes
+    document.getElementById('s-merchants').textContent = merchantListRes.length;
     document.getElementById('s-volume').textContent = fmt(vol);
     document.getElementById('s-tax').textContent = taxRes.length;
     document.getElementById('s-r2p').textContent = r2pRes.length;
