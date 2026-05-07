@@ -20,6 +20,7 @@ import 'screens/agent_screen.dart';
 import 'screens/tax_screen.dart';
 import 'screens/cbdc_screen.dart';
 import 'screens/topup_screen.dart';
+import 'screens/pisp_screen.dart';
 import 'services/api_client.dart';
 import 'services/transfer_service.dart';
 import 'services/wallet_service.dart';
@@ -76,6 +77,7 @@ void _gotoHome() {
         if (a == 'tax')    _gotoTax();
         if (a == 'cbdc')   _gotoCbdc();
         if (a == 'topup')  _gotoTopUp();
+        if (a == 'pisp')   _gotoPisp();
       },
       onQR: _gotoQR,
       onHistory: _gotoHistory,
@@ -120,6 +122,12 @@ void _gotoAgent() {
 void _gotoTax() {
   _nav.push(MaterialPageRoute(
     builder: (_) => TaxScreen(api: _api, onSuccess: _gotoSuccess),
+  ));
+}
+
+void _gotoPisp() {
+  _nav.push(MaterialPageRoute(
+    builder: (_) => PispScreen(api: _api, onSuccess: _gotoSuccess),
   ));
 }
 

@@ -10,6 +10,7 @@ const r2pRoutes        = require('./routes/r2p');
 const agentRoutes      = require('./routes/agents');
 const taxRoutes        = require('./routes/tax');
 const cbdcRoutes       = require('./routes/cbdc');
+const pispRoutes       = require('./routes/pisp');
 
 const path = require('path');
 
@@ -29,6 +30,7 @@ app.use('/requests',   r2pRoutes);
 app.use('/agents',     agentRoutes);
 app.use('/tax',        taxRoutes);
 app.use('/cbdc',       cbdcRoutes);
+app.use('/pisp',       pispRoutes);
 app.use('/', payeeRoutes);
 
 const PORT = process.env.PORT || 8030;

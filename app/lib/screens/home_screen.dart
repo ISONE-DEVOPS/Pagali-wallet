@@ -241,6 +241,14 @@ class _HomeScreenState extends State<HomeScreen> {
         action: 'topup',
       ),
       (
+        icon: Icons.open_in_new_rounded,
+        color: const Color(0xFF4F46E5),
+        bg: const Color(0xFFEEF2FF),
+        title: 'Iniciação de Pagamentos',
+        sub: 'Autoriza apps a pagar em teu nome (PISP)',
+        action: 'pisp',
+      ),
+      (
         icon: Icons.receipt_long_outlined,
         color: const Color(0xFFB45309),
         bg: const Color(0xFFFFF3E0),

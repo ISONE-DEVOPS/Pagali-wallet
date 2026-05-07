@@ -216,6 +216,43 @@ class ApiClient {
   Future<Map<String, dynamic>> convertToCve({required String msisdn, required double amount}) =>
     _post('$coreConnectorBase/cbdc/convert/to-cve', {'msisdn': msisdn, 'amount': amount});
 
+  // ─── PISP (Payment Initiation Service Provider) ──────────────────────────────
+  Future<List<Map<String, dynamic>>> getPispApps() async {
+    final r = await _http.get(Uri.parse('$coreConnectorBase/pisp/apps'), headers: _headers());
+    if (r.statusCode >= 400) throw ApiException(r.statusCode, r.body);
+    return (jsonDecode(r.body) as List).cast<Map<String, dynamic>>();
+  }
+
+  Future<List<Map<String, dynamic>>> getPispConsents(String msisdn) async {
+    final r = await _http.get(Uri.parse('$coreConnectorBase/pisp/consents/$msisdn'), headers: _headers());
+    if (r.statusCode >= 400) throw ApiException(r.statusCode, r.body);
+    return (jsonDecode(r.body) as List).cast<Map<String, dynamic>>();
+  }
+
+  Future<Map<String, dynamic>> grantPispConsent({
+    required String msisdn, required String appId, int? maxAmount,
+  }) => _post('$coreConnectorBase/pisp/consents', {
+    'msisdn': msisdn, 'appId': appId, 'maxAmount': maxAmount ?? 10000,
+  });
+
+  Future<Map<String, dynamic>> revokePispConsent(String consentId) async {
+    final r = await _http.delete(Uri.parse('$coreConnectorBase/pisp/consents/$consentId'), headers: _headers());
+    if (r.statusCode >= 400) throw ApiException(r.statusCode, r.body);
+    return jsonDecode(r.body) as Map<String, dynamic>;
+  }
+
+  Future<List<Map<String, dynamic>>> getPispPending(String msisdn) async {
+    final r = await _http.get(Uri.parse('$coreConnectorBase/pisp/pending/$msisdn'), headers: _headers());
+    if (r.statusCode >= 400) throw ApiException(r.statusCode, r.body);
+    return (jsonDecode(r.body) as List).cast<Map<String, dynamic>>();
+  }
+
+  Future<Map<String, dynamic>> approvePisp(String initiationId) =>
+    _post('$coreConnectorBase/pisp/initiations/$initiationId/approve', {});
+
+  Future<Map<String, dynamic>> rejectPisp(String initiationId) =>
+    _post('$coreConnectorBase/pisp/initiations/$initiationId/reject', {});
+
   // ─── FX (Cross-Currency) ────────────────────────────────────────────────────
   Future<Map<String, dynamic>> executeFxTransfer({
     required String sourceCurrency,

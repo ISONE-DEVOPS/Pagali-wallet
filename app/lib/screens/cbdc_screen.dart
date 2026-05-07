@@ -119,10 +119,10 @@ class _WalletTab extends StatelessWidget {
 
       const SizedBox(height: 16),
 
-      PCard(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        const Text('SOBRE O ESCUDO DIGITAL', style: PagaliText.label),
-        const SizedBox(height: 10),
-        const Text(
+      const PCard(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Text('SOBRE O ESCUDO DIGITAL', style: PagaliText.label),
+        SizedBox(height: 10),
+        Text(
           'O Escudo Digital é a versão digital do Escudo Cabo-verdiano emitida directamente pelo Banco de Cabo Verde. '
           'Tem paridade 1:1 com a moeda física e pode ser convertido em qualquer momento.',
           style: PagaliText.bodySm,
