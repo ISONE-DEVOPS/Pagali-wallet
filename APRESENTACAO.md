@@ -311,7 +311,7 @@ Assinatura RSA-SHA256     → anti-fraude
 | **0€ licença** | Open-source Apache 2.0 · padrão global Mojaloop |
 | **10 Use Cases** | Sistema completo — não apenas P2P |
 
-> *"O BCV hoje é um regulador com binóculos. Com Pagali, torna-se o operador da infraestrutura nacional de pagamentos de Cabo Verde."*
+> *"Pague ali. Receba aqui. De Santo Antão à Boa Vista, do emigrante em Lisboa à família em Mindelo — Pagali conecta Cabo Verde."*
 
 ---
 
