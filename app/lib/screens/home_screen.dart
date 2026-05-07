@@ -55,6 +55,7 @@ class _HomeScreenState extends State<HomeScreen> {
               const SizedBox(height: 8),
               _section('Pagar contas', _billPayGrid()),
               _section('Movimentos recentes', _recentList(), action: 'Ver tudo', onAction: widget.onHistory),
+              _section('Mais Serviços', _extraServices()),
             ],
           ),
           Positioned(
@@ -184,12 +185,10 @@ class _HomeScreenState extends State<HomeScreen> {
     return PCard(
       padding: const EdgeInsets.all(14),
       child: Row(children: [
-        _quickAction(Icons.arrow_upward,       'Enviar',   'send'),
-        _quickAction(Icons.qr_code_2,          'Meu QR',   'myqr'),
-        _quickAction(Icons.account_balance,    'G2P',      'g2p'),
-        _quickAction(Icons.currency_exchange,  'Remessa',  'fx'),
-        _quickAction(Icons.request_page,       'R2P',      'r2p'),
-        _quickAction(Icons.storefront_outlined,'Agentes',  'agent'),
+        _quickAction(Icons.arrow_upward,      'Enviar',  'send'),
+        _quickAction(Icons.qr_code_2,         'Meu QR',  'myqr'),
+        _quickAction(Icons.account_balance,   'G2P',     'g2p'),
+        _quickAction(Icons.currency_exchange, 'Remessa', 'fx'),
       ]),
     );
   }
@@ -213,6 +212,52 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
       ),
     );
+  }
+
+  Widget _extraServices() {
+    final services = [
+      (
+        icon: Icons.request_page_outlined,
+        color: PagaliColors.purple,
+        bg: PagaliColors.purple50,
+        title: 'Request to Pay',
+        sub: 'Comerciante envia pedido · cliente confirma com 1 toque',
+        action: 'r2p',
+      ),
+      (
+        icon: Icons.storefront_outlined,
+        color: const Color(0xFF0E8B66),
+        bg: const Color(0xFFE0F8EF),
+        title: 'Agent Banking',
+        sub: 'Cash-in e cash-out nas ilhas sem banco',
+        action: 'agent',
+      ),
+    ];
+    return Column(children: services.map((s) => GestureDetector(
+      onTap: () => widget.onAction(s.action),
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 10),
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(14),
+          boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: .05), blurRadius: 8)],
+        ),
+        child: Row(children: [
+          Container(
+            width: 48, height: 48,
+            decoration: BoxDecoration(color: s.bg, borderRadius: BorderRadius.circular(14)),
+            child: Icon(s.icon, color: s.color, size: 24),
+          ),
+          const SizedBox(width: 14),
+          Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Text(s.title, style: PagaliText.bodySm.copyWith(fontWeight: FontWeight.w600, fontSize: 15)),
+            Text(s.sub, style: PagaliText.caption),
+          ])),
+          const Icon(Icons.chevron_right, color: PagaliColors.fgLight, size: 20),
+        ]),
+      ),
+    )).toList());
   }
 
   Widget _section(String title, Widget body, {String? action, VoidCallback? onAction}) {
