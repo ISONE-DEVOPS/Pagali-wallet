@@ -75,7 +75,7 @@ class _SuccessScreenState extends State<SuccessScreen> with SingleTickerProvider
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
               decoration: BoxDecoration(color: PagaliColors.purple50, borderRadius: BorderRadius.circular(8)),
               child: Text(
-                'ID: ${txId?.substring(0, 16).toUpperCase() ?? 'N/A'}',
+                'ID: ${txId != null ? txId.substring(0, txId.length.clamp(0, 16)).toUpperCase() : 'N/A'}',
                 style: const TextStyle(fontFamily: 'monospace', fontSize: 11, color: PagaliColors.purple),
               ),
             ),
