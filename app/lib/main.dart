@@ -19,6 +19,7 @@ import 'screens/r2p_screen.dart';
 import 'screens/agent_screen.dart';
 import 'screens/tax_screen.dart';
 import 'screens/cbdc_screen.dart';
+import 'screens/topup_screen.dart';
 import 'services/api_client.dart';
 import 'services/transfer_service.dart';
 import 'services/wallet_service.dart';
@@ -74,6 +75,7 @@ void _gotoHome() {
         if (a == 'agent')  _gotoAgent();
         if (a == 'tax')    _gotoTax();
         if (a == 'cbdc')   _gotoCbdc();
+        if (a == 'topup')  _gotoTopUp();
       },
       onQR: _gotoQR,
       onHistory: _gotoHistory,
@@ -118,6 +120,29 @@ void _gotoAgent() {
 void _gotoTax() {
   _nav.push(MaterialPageRoute(
     builder: (_) => TaxScreen(api: _api, onSuccess: _gotoSuccess),
+  ));
+}
+
+void _gotoTopUp() {
+  _nav.push(MaterialPageRoute(
+    builder: (_) => TopUpScreen(
+      onConfirm: (amount, method) async {
+        if (method == 'agent') {
+          // Cash-in via agente — fluxo Mojaloop real
+          await _api.agentCashIn('AGT001', '2389001', amount.toDouble());
+        }
+        // Bank e card: depósito directo (crédito da instituição financeira)
+        WalletService.instance.credit(amount);
+        _gotoSuccess({
+          'name': method == 'agent' ? 'Loja Nha Filomena (Agente)' : method == 'bank' ? 'Banco de Cabo Verde' : 'Cartão •••• 8821',
+          'phone': '2389001',
+          'amount': amount,
+          'transferId': 'TOPUP-${DateTime.now().millisecondsSinceEpoch.toRadixString(36).toUpperCase()}',
+          'kind': 'topup',
+          'note': 'Carregamento via ${method == 'agent' ? 'agente' : method == 'bank' ? 'banco' : 'cartão'}',
+        });
+      },
+    ),
   ));
 }
 

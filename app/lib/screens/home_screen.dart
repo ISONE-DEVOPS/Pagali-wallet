@@ -233,6 +233,14 @@ class _HomeScreenState extends State<HomeScreen> {
         action: 'agent',
       ),
       (
+        icon: Icons.add_circle_outline,
+        color: const Color(0xFF0E8B66),
+        bg: const Color(0xFFE0F8EF),
+        title: 'Carregar Saldo',
+        sub: 'Via agente, banco ou cartão',
+        action: 'topup',
+      ),
+      (
         icon: Icons.receipt_long_outlined,
         color: const Color(0xFFB45309),
         bg: const Color(0xFFFFF3E0),

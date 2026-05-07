@@ -119,6 +119,7 @@
   <div class="tabs" style="margin-bottom:20px">
     <button class="tab active" onclick="setPage('ops')">📊 Operações</button>
     <button class="tab" onclick="setPage('bcv')" style="background:none;border:2px solid var(--lime);color:var(--lime)">🏦 BCV Regulador</button>
+    <button class="tab" onclick="setPage('arch')" style="background:none;border:2px solid var(--purple);color:var(--purple)">🔧 Arquitectura</button>
   </div>
 
   <!-- ═══ OPS PAGE ═══ -->
@@ -330,6 +331,105 @@
     </div>
   </div><!-- /page-bcv -->
 
+  <!-- ═══ ARCH PAGE ═══ -->
+  <div id="page-arch" style="display:none">
+
+    <div style="background:linear-gradient(135deg,#1a0a2e,#3a1a6a);border-radius:16px;padding:24px;margin-bottom:20px;color:#fff">
+      <div style="font-size:20px;font-weight:700;margin-bottom:6px">🔧 Arquitectura de Integração Mojaloop</div>
+      <div style="font-size:13px;opacity:.6">FSPIOP API · sdk-scheme-adapter · Hub · ALS · Quoting · Central Ledger</div>
+    </div>
+
+    <!-- Diagrama de fluxo -->
+    <div class="card" style="margin-bottom:20px;overflow:auto">
+      <div class="card-header"><span class="card-title">Fluxo de Integração — 3 Fases Mojaloop</span></div>
+      <div style="padding:20px;font-family:monospace;font-size:12px;line-height:1.8;color:var(--fg)">
+<pre style="margin:0;white-space:pre">
+  ┌─────────────────┐       ┌──────────────────────┐       ┌─────────────────────────────────┐
+  │  App Flutter    │       │   Core Connector      │       │        Mojaloop Hub             │
+  │  (iOS/Android)  │       │   :8030 (Node.js)     │       │   (produção: Kubernetes)        │
+  └────────┬────────┘       └──────────┬───────────┘       └──────────────┬──────────────────┘
+           │                           │                                   │
+           │  ── FASE 1: DISCOVERY ──────────────────────────────────────  │
+           │                           │                                   │
+           │  GET /parties/MSISDN/x ──►│── GET /parties/MSISDN/x ────────►│ Account Lookup Service (ALS)
+           │◄── {name, fspId} ─────────│◄── {party} ─────────────────────│◄── oracle lookup
+           │                           │                                   │
+           │  ── FASE 2: AGREEMENT ──────────────────────────────────────  │
+           │                           │                                   │
+           │  POST /transfers ────────►│── POST /quotes ─────────────────►│ Quoting Service
+           │◄── {fee, expiry} ─────────│◄── {ilpCondition, fee} ──────────│◄── fee calculation
+           │                           │                                   │
+           │  ── FASE 3: TRANSFER ───────────────────────────────────────  │
+           │                           │                                   │
+           │  POST /accept-quote ─────►│── PUT /transfers ───────────────►│ Central Ledger
+           │◄── {COMMITTED} ───────────│◄── {COMMITTED} ──────────────────│◄── reserve → fulfil
+           │                           │                                   │
+  ┌────────┴────────┐       ┌──────────┴───────────┐       ┌──────────────┴──────────────────┐
+  │   WalletService │       │  transfers.js (store) │       │  Settlement (Net + Deferred)    │
+  │   debit/credit  │       │  in-memory → DB prod  │       │  Per settlement window          │
+  └─────────────────┘       └──────────────────────┘       └─────────────────────────────────┘
+</pre>
+      </div>
+    </div>
+
+    <!-- Estado de implementação -->
+    <div class="grid">
+      <div class="card">
+        <div class="card-header"><span class="card-title">✅ Implementado (Hackathon)</span></div>
+        <div style="padding:4px 0">
+          ${[
+            ['FSPIOP 3-phase flow','Discovery → Quote → Transfer'],
+            ['Account Lookup Service','GET /parties/MSISDN + /BUSINESS'],
+            ['Quoting Service','Cálculo de taxa 0.5%'],
+            ['Central Ledger (sim.)','Reserve + Commit em memória'],
+            ['EMVCo QR Standard','TLV + CRC-16/CCITT'],
+            ['Settlement Engine','NDC + janelas + matriz FSP'],
+            ['8 Use Cases','P2P P2M G2P FX R2P Agent Tax CBDC'],
+          ].map(([t,s])=>`<div class="brow"><div><div style="font-size:13px;font-weight:500">${t}</div><div class="id">${s}</div></div><span style="color:var(--success);font-size:16px">✓</span></div>`).join('')}
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header"><span class="card-title">🔜 Produção (Piloto BCV)</span></div>
+        <div style="padding:4px 0">
+          ${[
+            ['sdk-scheme-adapter real','Bridge DFSP ↔ Mojaloop Hub'],
+            ['mTLS (mutual TLS)','Certificados via MCM'],
+            ['JWS Signing','Assinatura RSA-SHA256 por pedido'],
+            ['Mojaloop Hub real','Kubernetes + Helm charts'],
+            ['Percona MySQL','Substituir stores em memória'],
+            ['Apache Kafka','Event streaming async'],
+            ['MCM (cert exchange)','Mojaloop Connection Manager'],
+            ['HSM Integration','Hardware Security Module'],
+          ].map(([t,s])=>`<div class="brow"><div><div style="font-size:13px;font-weight:500">${t}</div><div class="id">${s}</div></div><span style="color:var(--warning);font-size:14px">→</span></div>`).join('')}
+        </div>
+      </div>
+
+      <!-- Stack tecnológico -->
+      <div class="card" style="grid-column:1/-1">
+        <div class="card-header"><span class="card-title">Stack Tecnológico</span></div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;padding:16px">
+          ${[
+            ['📱','App Mobile','Flutter / Dart 3.11'],
+            ['⚙️','Core Connector','Node.js + Express'],
+            ['🔐','QR Standard','EMVCo TLV + CRC-16'],
+            ['📡','Protocolo','FSPIOP API (Mojaloop)'],
+            ['💱','FX Rates','EUR/USD/GBP/BRL → CVE'],
+            ['₠','CBDC','Escudo Digital (BCV)'],
+            ['🏦','Settlement','Net Deferred + NDC'],
+            ['📜','Licença','Apache 2.0 (open-source)'],
+          ].map(([e,t,s])=>`
+            <div style="background:var(--purple-50);border-radius:10px;padding:12px">
+              <div style="font-size:22px;margin-bottom:4px">${e}</div>
+              <div style="font-size:13px;font-weight:600;color:var(--purple)">${t}</div>
+              <div style="font-size:11px;color:var(--muted)">${s}</div>
+            </div>`).join('')}
+        </div>
+      </div>
+
+    </div>
+  </div><!-- /page-arch -->
+
 </main>
 
 <script>
@@ -338,9 +438,8 @@ let activeTab = 'all';
 let allTx = [];
 
 function setPage(p) {
-  document.getElementById('page-ops').style.display = p === 'ops' ? '' : 'none';
-  document.getElementById('page-bcv').style.display = p === 'bcv' ? '' : 'none';
-  document.querySelectorAll('.tabs > .tab').forEach((el, i) => el.classList.toggle('active', i === (p === 'ops' ? 0 : 1)));
+  ['ops','bcv','arch'].forEach(id => document.getElementById('page-'+id).style.display = p===id ? '' : 'none');
+  document.querySelectorAll('.tabs > .tab').forEach((el, i) => el.classList.toggle('active', i === ['ops','bcv','arch'].indexOf(p)));
 }
 
 async function closeWindow() {
