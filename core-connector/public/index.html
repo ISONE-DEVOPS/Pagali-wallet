@@ -113,6 +113,14 @@
     </div>
   </div>
 
+  <!-- Page tabs -->
+  <div class="tabs" style="margin-bottom:20px">
+    <button class="tab active" onclick="setPage('ops')">📊 Operações</button>
+    <button class="tab" onclick="setPage('bcv')" style="background:none;border:2px solid var(--lime);color:var(--lime)">🏦 BCV Regulador</button>
+  </div>
+
+  <!-- ═══ OPS PAGE ═══ -->
+  <div id="page-ops">
   <!-- Tabs -->
   <div class="tabs">
     <button class="tab active" onclick="setTab('all')">Todas</button>
@@ -165,12 +173,143 @@
     </div>
 
   </div>
+  </div><!-- /page-ops -->
+
+  <!-- ═══ BCV PAGE ═══ -->
+  <div id="page-bcv" style="display:none">
+
+    <!-- BCV Header -->
+    <div style="background:linear-gradient(135deg,#1a0a3a,#3a1a6a);border-radius:16px;padding:24px;margin-bottom:20px;color:#fff">
+      <div style="display:flex;align-items:center;gap:14px;margin-bottom:12px">
+        <span style="font-size:32px">🏦</span>
+        <div>
+          <div style="font-size:11px;opacity:.6;letter-spacing:.08em;text-transform:uppercase">Banco de Cabo Verde</div>
+          <div style="font-size:20px;font-weight:700">Painel do Regulador — Scheme Operator</div>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:16px;margin-top:16px">
+        <div><div style="font-size:11px;opacity:.5">FSPs Activos</div><div id="bcv-fsp-count" style="font-size:28px;font-weight:700;color:#B4BF09">2</div></div>
+        <div><div style="font-size:11px;opacity:.5">Volume Total</div><div id="bcv-volume" style="font-size:28px;font-weight:700;color:#B4BF09">—</div></div>
+        <div><div style="font-size:11px;opacity:.5">Liquidações</div><div id="bcv-windows" style="font-size:28px;font-weight:700;color:#B4BF09">—</div></div>
+        <div><div style="font-size:11px;opacity:.5">Estado</div><div style="font-size:18px;font-weight:700;color:#2BD9A8">● OPERACIONAL</div></div>
+      </div>
+    </div>
+
+    <div class="grid">
+
+      <!-- NDC por FSP -->
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">Net Debit Cap por FSP</span>
+          <span style="font-size:11px;color:var(--light)">limite de crédito</span>
+        </div>
+        <div id="bcv-ndc"><div class="empty">A carregar…</div></div>
+      </div>
+
+      <!-- Janelas de Settlement -->
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">Janelas de Liquidação</span>
+          <button onclick="closeWindow()" style="background:var(--purple);color:#fff;border:none;border-radius:8px;padding:4px 12px;font-size:12px;cursor:pointer">Fechar Janela</button>
+        </div>
+        <div id="bcv-windows-list"><div class="empty">A carregar…</div></div>
+      </div>
+
+      <!-- Matriz FSP -->
+      <div class="card" style="grid-column:1/-1">
+        <div class="card-header">
+          <span class="card-title">Fluxo Interbancário (Multilateral Net Settlement)</span>
+          <div style="display:flex;gap:8px">
+            <a href="/settlement/report.csv" download style="background:var(--lime);color:#1a1a1a;border:none;border-radius:8px;padding:4px 12px;font-size:12px;cursor:pointer;text-decoration:none;font-weight:600">⬇ CSV</a>
+            <a href="/settlement/report" target="_blank" style="background:var(--purple-50);color:var(--purple);border:none;border-radius:8px;padding:4px 12px;font-size:12px;cursor:pointer;text-decoration:none;font-weight:600">⬇ JSON</a>
+          </div>
+        </div>
+        <table>
+          <thead><tr><th>De (FSP)</th><th>Para (FSP)</th><th>Volume</th><th>Transações</th><th>Posição Líquida</th></tr></thead>
+          <tbody id="bcv-matrix"><tr><td colspan="5" class="empty">Sem dados</td></tr></tbody>
+        </table>
+      </div>
+
+    </div>
+  </div><!-- /page-bcv -->
+
 </main>
 
 <script>
 const BASE = '';
 let activeTab = 'all';
 let allTx = [];
+
+function setPage(p) {
+  document.getElementById('page-ops').style.display = p === 'ops' ? '' : 'none';
+  document.getElementById('page-bcv').style.display = p === 'bcv' ? '' : 'none';
+  document.querySelectorAll('.tabs > .tab').forEach((el, i) => el.classList.toggle('active', i === (p === 'ops' ? 0 : 1)));
+}
+
+async function closeWindow() {
+  await fetch('/settlement/close', {method:'POST'});
+  loadBCV();
+}
+
+async function loadBCV() {
+  try {
+    const [pos, matrix, windows, txs] = await Promise.all([
+      fetch('/settlement/positions').then(r=>r.json()),
+      fetch('/settlement/matrix').then(r=>r.json()),
+      fetch('/settlement/windows').then(r=>r.json()),
+      fetch('/transfers').then(r=>r.json()),
+    ]);
+
+    const vol = txs.reduce((s,t) => s + (Number(t.amount)||0), 0);
+    document.getElementById('bcv-volume').textContent = fmt(vol) + ' CVE';
+    document.getElementById('bcv-windows').textContent = windows.length;
+    document.getElementById('bcv-fsp-count').textContent = pos.length;
+
+    // NDC
+    document.getElementById('bcv-ndc').innerHTML = pos.length ? pos.map(p => `
+      <div style="padding:14px 16px;border-top:1px solid rgba(0,0,0,.05)">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+          <span style="font-weight:600;font-size:14px">${p.fspId}</span>
+          <span class="badge ${p.status==='BREACH'?'badge-err':'badge-ok'}">${p.status}</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-bottom:6px">
+          <span>Usado: ${fmt(p.ndcUsed)} CVE</span>
+          <span>Limite: ${fmt(p.ndcLimit)} CVE</span>
+        </div>
+        <div style="height:6px;background:#eee;border-radius:99px;overflow:hidden">
+          <div style="height:100%;width:${p.ndcPct}%;background:${p.ndcPct>80?'var(--danger)':p.ndcPct>50?'var(--warning)':'var(--success)'};border-radius:99px;transition:width .4s"></div>
+        </div>
+        <div style="text-align:right;font-size:11px;color:var(--light);margin-top:3px">${p.ndcPct}% do NDC</div>
+        <div style="margin-top:8px;font-size:12px">
+          Posição líquida: <strong style="color:${p.position>=0?'var(--success)':'var(--danger)'}">${p.position>=0?'+':''}${fmt(p.position)} CVE</strong>
+        </div>
+      </div>`).join('') : '<div class="empty">Sem posições</div>';
+
+    // Janelas
+    document.getElementById('bcv-windows-list').innerHTML = windows.map(w => `
+      <div style="padding:12px 16px;border-top:1px solid rgba(0,0,0,.05);display:flex;justify-content:space-between;align-items:center">
+        <div>
+          <span class="badge ${w.state==='OPEN'?'badge-pend':w.state==='SETTLED'?'badge-ok':'badge-err'}">${w.state}</span>
+          <div style="font-size:11px;color:var(--muted);margin-top:4px">Aberta: ${ts(w.openedAt)}</div>
+          ${w.closedAt ? `<div style="font-size:11px;color:var(--muted)">Fechada: ${ts(w.closedAt)}</div>` : ''}
+        </div>
+        <div style="font-size:11px;font-family:monospace;color:var(--light)">${(w.windowId||'').slice(0,8).toUpperCase()}</div>
+      </div>`).join('');
+
+    // Matriz
+    document.getElementById('bcv-matrix').innerHTML = matrix.length ? matrix.map(m => {
+      const net = (txs.filter(t=>t.payee?.fspId===m.from&&t.payer?.fspId===m.to&&t.state==='COMMITTED').reduce((s,t)=>s+(Number(t.amount)||0),0) - m.volume);
+      return `<tr>
+        <td style="font-weight:600">${m.from}</td>
+        <td>${m.to}</td>
+        <td class="amount">${fmt(m.volume)} CVE</td>
+        <td>${m.count} tx</td>
+        <td class="amount" style="color:${net>=0?'var(--success)':'var(--danger)'}">${net>=0?'+':''}${fmt(net)} CVE</td>
+      </tr>`;
+    }).join('') : '<tr><td colspan="5" class="empty">Sem transações interbancárias</td></tr>';
+
+  } catch(e) { console.error('BCV load error', e); }
+}
 
 function setTab(t) {
   activeTab = t;
@@ -328,7 +467,8 @@ function updateCharts(txs) {
 
 initCharts();
 loadAll();
-setInterval(loadAll, 3000);
+loadBCV();
+setInterval(() => { loadAll(); loadBCV(); }, 3000);
 </script>
 </body>
 </html>
