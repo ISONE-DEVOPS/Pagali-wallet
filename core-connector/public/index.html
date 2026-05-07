@@ -197,6 +197,15 @@
       <div id="cbdc-body"><div class="empty">Sem transações CBDC</div></div>
     </div>
 
+    <!-- Agent Banking -->
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">Agent Banking</span>
+        <span class="card-count" id="agent-count">0</span>
+      </div>
+      <div id="agent-body"><div class="empty">Sem operações de agente</div></div>
+    </div>
+
     <!-- FX Rates -->
     <div class="card">
       <div class="card-header"><span class="card-title">Taxas de Câmbio</span><span style="font-size:11px;color:var(--light)">CVE</span></div>
@@ -444,7 +453,7 @@ async function loadAll() {
       fetch('/requests').then(r=>r.json()).catch(()=>[]),
       fetch('/tax/receipts').then(r=>r.json()).catch(()=>[]),
       fetch('/cbdc/transactions').then(r=>r.json()).catch(()=>[]),
-      fetch('/agents').then(r=>r.json()).catch(()=>[]),
+      fetch('/agents/transactions/all').then(r=>r.json()).catch(()=>[]),
     ]);
 
     allTx = txRes;
@@ -461,10 +470,7 @@ async function loadAll() {
       document.getElementById('cbdc-supply').textContent = 'circulação: ' + fmt(s.totalSupply||0) + ' ₠';
     }).catch(()=>{});
     // Agent ops
-    const agentOps = agentsRes.reduce((s,a)=>{
-      const txs = a.transactions||[]; return s+txs.length;
-    },0);
-    document.getElementById('s-agent').textContent = agentOps;
+    document.getElementById('s-agent').textContent = agentsRes.length;
 
     renderTx();
     updateCharts(allTx);
@@ -528,6 +534,19 @@ async function loadAll() {
         </div>
         <span class="amount">${fmt(r.total)} CVE</span>
       </div>`).join('') : '<div class="empty">Sem recibos fiscais</div>';
+
+    // Agent Banking
+    document.getElementById('agent-count').textContent = agentsRes.length;
+    document.getElementById('s-agent').textContent = agentsRes.length;
+    document.getElementById('agent-body').innerHTML = agentsRes.length ? agentsRes.slice(0,6).map(t=>`
+      <div class="brow">
+        <div>
+          <span class="badge ${t.type==='CASH_IN'?'badge-ok':'badge-p2p'}">${t.type==='CASH_IN'?'Cash-In':'Cash-Out'}</span>
+          <div class="id">${t.agentName||t.agentId} · ${t.island||''}</div>
+          <div class="id">${t.customerMsisdn}</div>
+        </div>
+        <span class="amount">${fmt(t.amount)} CVE</span>
+      </div>`).join('') : '<div class="empty">Sem operações de agente</div>';
 
     // CBDC
     document.getElementById('cbdc-body').innerHTML = cbdcRes.length ? cbdcRes.slice(0,6).map(t=>`

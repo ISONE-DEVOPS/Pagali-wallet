@@ -7,6 +7,14 @@ const AGENT_FEE = 50; // CVE taxa fixa por operação
 // Listar agentes
 router.get('/', (_, res) => res.json(agents.listAgents()));
 
+// Todas as transações de todos os agentes
+router.get('/transactions/all', (_, res) => {
+  const all = agents.listAgents().flatMap(a =>
+    agents.getTransactions(a.agentId).map(t => ({ ...t, agentName: a.name, island: a.island }))
+  ).sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+  return res.json(all);
+});
+
 // Detalhes + transações de um agente
 router.get('/:id', (req, res) => {
   const agent = agents.getAgent(req.params.id);
