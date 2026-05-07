@@ -7,6 +7,7 @@ import '../widgets/p_card.dart';
 import '../widgets/p_field.dart';
 import '../services/api_client.dart';
 import '../utils/format.dart';
+import '../utils/validators.dart';
 import '../services/wallet_service.dart';
 
 class TaxScreen extends StatefulWidget {
@@ -38,9 +39,16 @@ class _TaxScreenState extends State<TaxScreen> {
     } catch (_) {}
   }
 
+  String? _validationError;
+
   Future<void> _calculate() async {
-    if (_selected == null) return;
-    setState(() { _loading = true; _calc = null; });
+    if (_selected == null) { setState(() => _validationError = 'Seleccione o tipo de imposto'); return; }
+    final nifErr    = Validators.nif(_nif.text);
+    final amtErr    = Validators.amount(_amount.text, min: 1);
+    final periodErr = Validators.period(_period.text);
+    final err = nifErr ?? amtErr ?? periodErr;
+    if (err != null) { setState(() => _validationError = err); return; }
+    setState(() { _validationError = null; _loading = true; _calc = null; });
     try {
       final result = await widget.api.calculateTax(code: _selected!['code'], baseAmount: double.parse(_amount.text));
       if (mounted) setState(() { _calc = result; _loading = false; });
@@ -120,6 +128,11 @@ class _TaxScreenState extends State<TaxScreen> {
       PField(label: 'Período', controller: _period),
       const SizedBox(height: 20),
 
+      if (_validationError != null) ...[
+        const SizedBox(height: 4),
+        Text(_validationError!, style: const TextStyle(color: PagaliColors.danger, fontSize: 12)),
+        const SizedBox(height: 8),
+      ],
       _loading
         ? const Center(child: CircularProgressIndicator(color: PagaliColors.purple))
         : PButton(label: 'Calcular Imposto', fullWidth: true, variant: PButtonVariant.tertiary,

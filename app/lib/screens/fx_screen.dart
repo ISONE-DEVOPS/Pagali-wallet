@@ -8,6 +8,7 @@ import '../widgets/p_card.dart';
 import '../widgets/p_field.dart';
 import '../services/api_client.dart';
 import '../utils/format.dart';
+import '../utils/validators.dart';
 
 class FxScreen extends StatefulWidget {
   final ApiClient api;
@@ -56,8 +57,9 @@ class _FxScreenState extends State<FxScreen> {
   }
 
   Future<void> _fetchQuote() async {
-    final amt = double.tryParse(_amountCtrl.text);
-    if (amt == null || amt <= 0) return;
+    final fxErr = Validators.fxAmount(_amountCtrl.text, _currency);
+    if (fxErr != null) { setState(() => _error = fxErr); return; }
+    final amt = double.parse(_amountCtrl.text);
     setState(() { _loadingQuote = true; _quote = null; _error = null; });
     try {
       final q = await widget.api.getFxQuote(

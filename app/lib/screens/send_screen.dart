@@ -7,6 +7,7 @@ import '../widgets/p_card.dart';
 import '../widgets/p_field.dart';
 import '../widgets/p_avatar.dart';
 import '../utils/format.dart';
+import '../utils/validators.dart';
 import '../services/wallet_service.dart';
 
 class SendScreen extends StatefulWidget {
@@ -25,6 +26,8 @@ class _SendScreenState extends State<SendScreen> {
   final _note = TextEditingController();
   String _selectedName = 'João Monteiro';
   String _selectedMsisdn = '2389002';
+  String? _phoneError;
+  String? _amountError;
 
   // Recentes — MSISDNs alinhados com o backend (core-connector/src/data/accounts.js)
   final _recents = const [
@@ -78,8 +81,16 @@ class _SendScreenState extends State<SendScreen> {
             ],
           ],
         )),
+        if (_phoneError != null) ...[
+          const SizedBox(height: 8),
+          Text(_phoneError!, style: const TextStyle(color: PagaliColors.danger, fontSize: 12)),
+        ],
         const SizedBox(height: 24),
-        PButton(label: 'Continuar', fullWidth: true, onPressed: () => setState(() => _step = 1)),
+        PButton(label: 'Continuar', fullWidth: true, onPressed: () {
+          final err = Validators.msisdn(_phone.text, ownMsisdn: '2389001');
+          setState(() => _phoneError = err);
+          if (err == null) setState(() => _step = 1);
+        }),
       ],
     );
   }
@@ -130,17 +141,27 @@ class _SendScreenState extends State<SendScreen> {
       ),
       const SizedBox(height: 16),
       PField(label: 'Nota (opcional)', controller: _note, placeholder: 'Almoço, renda…'),
+      if (_amountError != null) ...[
+        const SizedBox(height: 8),
+        Text(_amountError!, style: const TextStyle(color: PagaliColors.danger, fontSize: 12)),
+      ],
       const SizedBox(height: 24),
       PButton(
         label: 'Confirmar e enviar', fullWidth: true,
-        onPressed: () => widget.onContinue({
-          'name': _selectedName,
-          'msisdn': _selectedMsisdn,
-          'phone': _phone.text,
-          'amount': num.tryParse(_amount.text) ?? 0,
-          'note': _note.text,
-          'kind': 'p2p',
-        }),
+        onPressed: () {
+          final balance = WalletService.instance.balance.value;
+          final err = Validators.amount(_amount.text, min: 1, available: balance);
+          setState(() => _amountError = err);
+          if (err != null) return;
+          widget.onContinue({
+            'name': _selectedName,
+            'msisdn': _selectedMsisdn,
+            'phone': _phone.text,
+            'amount': num.tryParse(_amount.text) ?? 0,
+            'note': _note.text,
+            'kind': 'p2p',
+          });
+        },
       ),
     ]);
   }
