@@ -239,13 +239,16 @@
 
     <!-- Use Cases implementados -->
     <div style="background:#fff;border-radius:14px;padding:20px;box-shadow:var(--shadow);margin-bottom:20px">
-      <div style="font-size:13px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:14px">Use Cases Implementados</div>
-      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px">
-        ${['P2P · Transferências','P2M · QR Comerciante','G2P · Subsídios Gov','FX · Remessas Diáspora','R2P · Request to Pay','Agent Banking · Ilhas','Impostos · IGT/INPS/IVA','CBDC · Escudo Digital'].map((uc,i)=>`
-          <div style="background:var(--purple-50);border-radius:10px;padding:10px 12px;display:flex;align-items:center;gap:8px">
-            <span style="color:var(--success);font-size:14px">✓</span>
-            <span style="font-size:12px;font-weight:500;color:var(--purple)">${uc}</span>
-          </div>`).join('')}
+      <div style="font-size:13px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:14px">8 Use Cases Implementados</div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px" id="use-cases">
+        <div style="background:var(--purple-50);border-radius:10px;padding:10px 12px;display:flex;align-items:center;gap:8px"><span style="color:var(--success)">✓</span><span style="font-size:12px;font-weight:500;color:var(--purple)">P2P · Transferências</span></div>
+        <div style="background:var(--purple-50);border-radius:10px;padding:10px 12px;display:flex;align-items:center;gap:8px"><span style="color:var(--success)">✓</span><span style="font-size:12px;font-weight:500;color:var(--purple)">P2M · QR Comerciante</span></div>
+        <div style="background:var(--purple-50);border-radius:10px;padding:10px 12px;display:flex;align-items:center;gap:8px"><span style="color:var(--success)">✓</span><span style="font-size:12px;font-weight:500;color:var(--purple)">G2P · Subsídios Gov.</span></div>
+        <div style="background:var(--purple-50);border-radius:10px;padding:10px 12px;display:flex;align-items:center;gap:8px"><span style="color:var(--success)">✓</span><span style="font-size:12px;font-weight:500;color:var(--purple)">FX · Remessas Diáspora</span></div>
+        <div style="background:var(--purple-50);border-radius:10px;padding:10px 12px;display:flex;align-items:center;gap:8px"><span style="color:var(--success)">✓</span><span style="font-size:12px;font-weight:500;color:var(--purple)">R2P · Request to Pay</span></div>
+        <div style="background:var(--purple-50);border-radius:10px;padding:10px 12px;display:flex;align-items:center;gap:8px"><span style="color:var(--success)">✓</span><span style="font-size:12px;font-weight:500;color:var(--purple)">Agent Banking · Ilhas</span></div>
+        <div style="background:var(--purple-50);border-radius:10px;padding:10px 12px;display:flex;align-items:center;gap:8px"><span style="color:var(--success)">✓</span><span style="font-size:12px;font-weight:500;color:var(--purple)">Impostos · IGT/INPS/IVA</span></div>
+        <div style="background:var(--purple-50);border-radius:10px;padding:10px 12px;display:flex;align-items:center;gap:8px"><span style="color:var(--success)">✓</span><span style="font-size:12px;font-weight:500;color:var(--purple)">CBDC · Escudo Digital</span></div>
       </div>
     </div>
 
@@ -317,7 +320,11 @@ async function loadBCV() {
     const vol = txs.reduce((s,t) => s + (Number(t.amount)||0), 0);
     document.getElementById('bcv-volume').textContent = fmt(vol) + ' CVE';
     document.getElementById('bcv-windows').textContent = windows.length;
-    document.getElementById('bcv-fsp-count').textContent = pos.length;
+    // FSPs únicos que já transacionaram (ou os definidos no sistema)
+    const fspSet = new Set();
+    txs.forEach(t => { if(t.payer?.fspId) fspSet.add(t.payer.fspId); if(t.payee?.fspId) fspSet.add(t.payee.fspId); });
+    if (fspSet.size === 0) { fspSet.add('BCVCVCV'); fspSet.add('BCNCV'); }
+    document.getElementById('bcv-fsp-count').textContent = fspSet.size;
 
     // NDC
     document.getElementById('bcv-ndc').innerHTML = pos.length ? pos.map(p => `
