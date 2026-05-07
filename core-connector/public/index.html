@@ -101,6 +101,7 @@
     <div class="stat-card"><div class="stat-label">Escudo Digital</div><div class="stat-value" id="s-cbdc">—</div><div class="stat-sub">em circulação</div></div>
     <div class="stat-card"><div class="stat-label">R2P Pedidos</div><div class="stat-value" id="s-r2p">—</div><div class="stat-sub">request to pay</div></div>
     <div class="stat-card"><div class="stat-label">Operações Agente</div><div class="stat-value" id="s-agent">—</div><div class="stat-sub">cash-in + cash-out</div></div>
+    <div class="stat-card"><div class="stat-label">PISP Iniciações</div><div class="stat-value" id="s-pisp">—</div><div class="stat-sub">third-party payments</div></div>
   </div>
 
   <!-- Charts -->
@@ -196,6 +197,15 @@
         <span style="font-size:11px;color:var(--light)" id="cbdc-supply">circulação: 0 ₠</span>
       </div>
       <div id="cbdc-body"><div class="empty">Sem transações CBDC</div></div>
+    </div>
+
+    <!-- PISP -->
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">PISP — Iniciação por Terceiros</span>
+        <span class="card-count" id="pisp-count">0</span>
+      </div>
+      <div id="pisp-body"><div class="empty">Sem iniciações PISP</div></div>
     </div>
 
     <!-- Agent Banking -->
@@ -383,7 +393,8 @@
           <div class="brow"><div><div style="font-size:13px;font-weight:500">Central Ledger (sim.)</div><div class="id">Reserve + Commit em memória</div></div><span style="color:var(--success);font-size:16px">✓</span></div>
           <div class="brow"><div><div style="font-size:13px;font-weight:500">EMVCo QR Standard</div><div class="id">TLV + CRC-16/CCITT</div></div><span style="color:var(--success);font-size:16px">✓</span></div>
           <div class="brow"><div><div style="font-size:13px;font-weight:500">Settlement Engine</div><div class="id">NDC + janelas + matriz FSP</div></div><span style="color:var(--success);font-size:16px">✓</span></div>
-          <div class="brow"><div><div style="font-size:13px;font-weight:500">9 Use Cases</div><div class="id">P2P P2M G2P FX R2P Agent Tax CBDC TopUp</div></div><span style="color:var(--success);font-size:16px">✓</span></div>
+          <div class="brow"><div><div style="font-size:13px;font-weight:500">PISP / Third Party API</div><div class="id">Consentimentos + iniciação por terceiros (TPAPI)</div></div><span style="color:var(--success);font-size:16px">✓</span></div>
+          <div class="brow"><div><div style="font-size:13px;font-weight:500">10 Use Cases</div><div class="id">P2P P2M G2P FX R2P Agent Tax CBDC TopUp PISP</div></div><span style="color:var(--success);font-size:16px">✓</span></div>
         </div>
       </div>
 
@@ -533,7 +544,7 @@ function renderTx() {
 
 async function loadAll() {
   try {
-    const [txRes, g2pRes, merchRes, fxRes, r2pRes, taxRes, cbdcRes, agentsRes] = await Promise.all([
+    const [txRes, g2pRes, merchRes, fxRes, r2pRes, taxRes, cbdcRes, agentsRes, pispRes] = await Promise.all([
       fetch('/transfers').then(r=>r.json()),
       fetch('/g2p/batches').then(r=>r.json()),
       fetch('http://localhost:4002/payments').then(r=>r.json()).catch(()=>[]),
@@ -542,13 +553,15 @@ async function loadAll() {
       fetch('/tax/receipts').then(r=>r.json()).catch(()=>[]),
       fetch('/cbdc/transactions').then(r=>r.json()).catch(()=>[]),
       fetch('/agents/transactions/all').then(r=>r.json()).catch(()=>[]),
+      fetch('/pisp/initiations').then(r=>r.json()).catch(()=>[]),
     ]);
 
     allTx = txRes;
 
     // Stats
     const vol = allTx.reduce((s,t) => s + (Number(t.amount)||0), 0);
-    document.getElementById('s-total').textContent = allTx.length + r2pRes.length + taxRes.length + cbdcRes.length;
+    document.getElementById('s-pisp').textContent = pispRes.length;
+    document.getElementById('s-total').textContent = allTx.length + r2pRes.length + taxRes.length + cbdcRes.length + pispRes.length;
     document.getElementById('s-volume').textContent = fmt(vol);
     document.getElementById('s-tax').textContent = taxRes.length;
     document.getElementById('s-r2p').textContent = r2pRes.length;
@@ -622,6 +635,20 @@ async function loadAll() {
         </div>
         <span class="amount">${fmt(r.total)} CVE</span>
       </div>`).join('') : '<div class="empty">Sem recibos fiscais</div>';
+
+    // PISP
+    document.getElementById('pisp-count').textContent = pispRes.length;
+    document.getElementById('pisp-body').innerHTML = pispRes.length ? pispRes.slice(0,6).map(r=>`
+      <div class="brow">
+        <div>
+          <div style="font-size:13px;font-weight:500">${r.app?.icon||'📱'} ${r.app?.name||r.appId}</div>
+          <div class="id">${r.description||''} · ${r.payerMsisdn}</div>
+        </div>
+        <div style="text-align:right">
+          <div class="amount">${fmt(r.amount)} CVE</div>
+          <span class="badge ${r.state==='APPROVED'?'badge-ok':r.state==='REJECTED'?'badge-err':'badge-pend'}">${r.state}</span>
+        </div>
+      </div>`).join('') : '<div class="empty">Sem iniciações PISP</div>';
 
     // Agent Banking
     document.getElementById('agent-count').textContent = agentsRes.length;
