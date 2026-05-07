@@ -2,7 +2,6 @@
 import 'package:flutter/material.dart';
 import '../theme/colors.dart';
 import '../theme/typography.dart';
-import '../widgets/p_button.dart';
 import '../widgets/p_card.dart';
 import '../widgets/p_field.dart';
 import '../services/api_client.dart';
@@ -133,6 +132,26 @@ class _AgentDetailViewState extends State<_AgentDetailView> {
     } catch (_) { if (mounted) setState(() => _loading = false); }
   }
 
+  Widget _opButton(IconData icon, String label, Color fg, Color bg, String type) {
+    return GestureDetector(
+      onTap: () => _operate(type),
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        decoration: BoxDecoration(color: bg, borderRadius: BorderRadius.circular(14)),
+        child: Row(children: [
+          Container(
+            width: 36, height: 36,
+            decoration: BoxDecoration(color: fg.withValues(alpha: .15), shape: BoxShape.circle),
+            child: Icon(icon, color: fg, size: 18),
+          ),
+          const SizedBox(width: 14),
+          Text(label, style: TextStyle(fontFamily: PagaliText.family, color: fg, fontWeight: FontWeight.w600, fontSize: 14)),
+        ]),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -164,21 +183,23 @@ class _AgentDetailViewState extends State<_AgentDetailView> {
           PField(label: 'Montante (CVE)', controller: _amount, keyboardType: TextInputType.number),
           const SizedBox(height: 16),
           if (_message != null) ...[
-            Text(_message!, style: const TextStyle(color: PagaliColors.success, fontSize: 13, fontWeight: FontWeight.w500)),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+              decoration: BoxDecoration(color: const Color(0xFFE0F8EF), borderRadius: BorderRadius.circular(10)),
+              child: Row(children: [
+                const Icon(Icons.check_circle_outline, color: Color(0xFF0E8B66), size: 16),
+                const SizedBox(width: 8),
+                Expanded(child: Text(_message!, style: const TextStyle(color: Color(0xFF0E8B66), fontSize: 13, fontWeight: FontWeight.w500))),
+              ]),
+            ),
             const SizedBox(height: 12),
           ],
           _loading
             ? const Center(child: CircularProgressIndicator(color: PagaliColors.purple))
-            : Row(children: [
-                Expanded(child: PButton(
-                  label: '⬇ Cash-In', fullWidth: true, variant: PButtonVariant.ghost,
-                  onPressed: () => _operate('in'),
-                )),
-                const SizedBox(width: 12),
-                Expanded(child: PButton(
-                  label: '⬆ Cash-Out', fullWidth: true,
-                  onPressed: () => _operate('out'),
-                )),
+            : Column(children: [
+                _opButton(Icons.arrow_downward_rounded, 'Cash-In — Depositar dinheiro', const Color(0xFF0E8B66), const Color(0xFFE0F8EF), 'in'),
+                const SizedBox(height: 10),
+                _opButton(Icons.arrow_upward_rounded, 'Cash-Out — Levantar dinheiro', PagaliColors.purple, PagaliColors.purple50, 'out'),
               ]),
         ])),
         const SizedBox(height: 20),
