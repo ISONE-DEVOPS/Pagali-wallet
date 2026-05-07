@@ -232,6 +232,22 @@ class _HomeScreenState extends State<HomeScreen> {
         sub: 'Cash-in e cash-out nas ilhas sem banco',
         action: 'agent',
       ),
+      (
+        icon: Icons.receipt_long_outlined,
+        color: const Color(0xFFB45309),
+        bg: const Color(0xFFFFF3E0),
+        title: 'Impostos',
+        sub: 'Pagar IGT, INPS, IVA e outros impostos',
+        action: 'tax',
+      ),
+      (
+        icon: Icons.currency_bitcoin,
+        color: const Color(0xFF1a0a2e),
+        bg: const Color(0xFFEDE7F6),
+        title: 'Escudo Digital (CBDC)',
+        sub: 'Moeda digital emitida pelo BCV — 1:1 com CVE',
+        action: 'cbdc',
+      ),
     ];
     return Column(children: services.map((s) => GestureDetector(
       onTap: () => widget.onAction(s.action),

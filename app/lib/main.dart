@@ -17,6 +17,8 @@ import 'screens/history_screen.dart';
 import 'screens/merchant_qr_screen.dart';
 import 'screens/r2p_screen.dart';
 import 'screens/agent_screen.dart';
+import 'screens/tax_screen.dart';
+import 'screens/cbdc_screen.dart';
 import 'services/api_client.dart';
 import 'services/transfer_service.dart';
 import 'services/wallet_service.dart';
@@ -70,6 +72,8 @@ void _gotoHome() {
         if (a == 'history') _gotoHistory();
         if (a == 'r2p')    _gotoR2P();
         if (a == 'agent')  _gotoAgent();
+        if (a == 'tax')    _gotoTax();
+        if (a == 'cbdc')   _gotoCbdc();
       },
       onQR: _gotoQR,
       onHistory: _gotoHistory,
@@ -108,6 +112,18 @@ void _gotoR2P() {
 void _gotoAgent() {
   _nav.push(MaterialPageRoute(
     builder: (_) => AgentScreen(api: _api),
+  ));
+}
+
+void _gotoTax() {
+  _nav.push(MaterialPageRoute(
+    builder: (_) => TaxScreen(api: _api, onSuccess: _gotoSuccess),
+  ));
+}
+
+void _gotoCbdc() {
+  _nav.push(MaterialPageRoute(
+    builder: (_) => CbdcScreen(api: _api),
   ));
 }
 

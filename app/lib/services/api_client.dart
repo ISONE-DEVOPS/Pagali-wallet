@@ -182,6 +182,40 @@ class ApiClient {
   Future<Map<String, dynamic>> agentCashOut(String agentId, String customerMsisdn, double amount) =>
     _post('$coreConnectorBase/agents/$agentId/cash-out', {'customerMsisdn': customerMsisdn, 'amount': amount});
 
+  // ─── Tax (Impostos) ─────────────────────────────────────────────────────────
+  Future<List<Map<String, dynamic>>> getTaxTypes() async {
+    final r = await _http.get(Uri.parse('$coreConnectorBase/tax/types'), headers: _headers());
+    if (r.statusCode >= 400) throw ApiException(r.statusCode, r.body);
+    return (jsonDecode(r.body) as List).cast<Map<String, dynamic>>();
+  }
+
+  Future<Map<String, dynamic>> calculateTax({required String code, required double baseAmount}) =>
+    _post('$coreConnectorBase/tax/calculate', {'code': code, 'baseAmount': baseAmount});
+
+  Future<Map<String, dynamic>> payTax({
+    required String nif, required String code,
+    required double baseAmount, required String payerMsisdn, required String period,
+  }) => _post('$coreConnectorBase/tax/pay', {
+    'nif': nif, 'code': code, 'baseAmount': baseAmount,
+    'payerMsisdn': payerMsisdn, 'period': period,
+  });
+
+  // ─── CBDC (Escudo Digital) ──────────────────────────────────────────────────
+  Future<Map<String, dynamic>> getCbdcWallet(String msisdn) =>
+    _get('$coreConnectorBase/cbdc/wallet/$msisdn');
+
+  Future<Map<String, dynamic>> getCbdcSupply() =>
+    _get('$coreConnectorBase/cbdc/supply');
+
+  Future<Map<String, dynamic>> cbdcMint({required String msisdn, required double amount}) =>
+    _post('$coreConnectorBase/cbdc/mint', {'msisdn': msisdn, 'amount': amount, 'authorizedBy': 'BCV'});
+
+  Future<Map<String, dynamic>> convertToCbdc({required String msisdn, required double amount}) =>
+    _post('$coreConnectorBase/cbdc/convert/to-cbdc', {'msisdn': msisdn, 'amount': amount});
+
+  Future<Map<String, dynamic>> convertToCve({required String msisdn, required double amount}) =>
+    _post('$coreConnectorBase/cbdc/convert/to-cve', {'msisdn': msisdn, 'amount': amount});
+
   // ─── FX (Cross-Currency) ────────────────────────────────────────────────────
   Future<Map<String, dynamic>> executeFxTransfer({
     required String sourceCurrency,
