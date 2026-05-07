@@ -130,6 +130,7 @@ class _PayerInbox extends StatefulWidget {
 class _PayerInboxState extends State<_PayerInbox> {
   List<Map<String, dynamic>> _requests = [];
   bool _loading = true;
+  String? _error;
   Timer? _timer;
 
   @override
@@ -145,6 +146,11 @@ class _PayerInboxState extends State<_PayerInbox> {
   }
 
   Future<void> _accept(Map<String, dynamic> r) async {
+    final amount = r['amount'] as num;
+    if (!WalletService.instance.canDebit(amount, amount * 0.005)) {
+      if (mounted) setState(() => _error = 'Saldo insuficiente (${(WalletService.instance.balance.value).toStringAsFixed(2)} CVE disponível)');
+      return;
+    }
     try {
       final result = await widget.api.acceptR2P(r['requestId']);
       WalletService.instance.debit(r['amount'] as num, result['fee'] ?? 0);
@@ -173,6 +179,18 @@ class _PayerInboxState extends State<_PayerInbox> {
     return _loading
       ? const Center(child: CircularProgressIndicator(color: PagaliColors.purple))
       : ListView(padding: const EdgeInsets.all(20), children: [
+          if (_error != null) ...[
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+              decoration: BoxDecoration(color: const Color(0xFFFFE4E4), borderRadius: BorderRadius.circular(10)),
+              child: Row(children: [
+                const Icon(Icons.error_outline, color: PagaliColors.danger, size: 16),
+                const SizedBox(width: 8),
+                Expanded(child: Text(_error!, style: const TextStyle(color: PagaliColors.danger, fontSize: 13))),
+              ]),
+            ),
+            const SizedBox(height: 12),
+          ],
           if (pending.isEmpty) PCard(child: Padding(
             padding: const EdgeInsets.all(16),
             child: Column(children: [

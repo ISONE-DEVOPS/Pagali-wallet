@@ -49,6 +49,10 @@ class _TaxScreenState extends State<TaxScreen> {
 
   Future<void> _pay() async {
     if (_calc == null) return;
+    final total = _calc!['total'] as num;
+    if (!WalletService.instance.canDebit(total, 0)) {
+      setState(() => _calc = {..._calc!, '_error': 'Saldo insuficiente (${Money.cve(WalletService.instance.balance.value)} CVE disponível)'}); return;
+    }
     setState(() { _paying = true; });
     try {
       final result = await widget.api.payTax(

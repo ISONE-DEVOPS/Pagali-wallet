@@ -6,6 +6,7 @@ import '../widgets/p_button.dart';
 import '../widgets/p_card.dart';
 import '../widgets/p_avatar.dart';
 import '../utils/format.dart';
+import '../services/wallet_service.dart';
 
 class ConfirmScreen extends StatefulWidget {
   final Map<String, dynamic> tx;
@@ -24,7 +25,9 @@ class _ConfirmScreenState extends State<ConfirmScreen> {
     setState(() { _loading = true; _error = null; });
     try {
       await widget.onConfirm();
-    } catch (e) {
+    } on InsufficientBalanceException catch (e) {
+      if (mounted) setState(() { _loading = false; _error = e.toString(); });
+    } catch (_) {
       if (mounted) setState(() { _loading = false; _error = 'Falha no pagamento. Tente novamente.'; });
     }
   }

@@ -138,14 +138,19 @@ void _gotoConfirm(Map<String, dynamic> tx) {
     builder: (_) => ConfirmScreen(
       tx: tx,
       onConfirm: () async {
+        final amount = tx['amount'] as num;
+        final estFee  = amount * 0.005;
+        WalletService.instance.debit(amount, estFee); // lança InsufficientBalanceException se não houver saldo
         final receipt = await _transfer.sendP2P(
           payerMsisdn: '2389001',
           payeeMsisdn: tx['msisdn'] as String,
-          amount: tx['amount'] as num,
+          amount: amount,
           note: tx['note'] as String?,
         );
-        final fee = num.tryParse(receipt['fee']?.toString() ?? '0') ?? 0;
-        WalletService.instance.debit(tx['amount'] as num, fee);
+        // Ajuste com taxa real (devolve saldo estimado e aplica a real)
+        final realFee = num.tryParse(receipt['fee']?.toString() ?? '0') ?? 0;
+        WalletService.instance.credit(estFee);
+        WalletService.instance.debit(0, realFee);
         _gotoSuccess({...tx, ...receipt});
       },
     ),
@@ -189,13 +194,17 @@ void _gotoConfirmP2M(Map<String, dynamic> tx, Map<String, dynamic> merchant) {
     builder: (_) => ConfirmScreen(
       tx: {...tx, 'phone': merchant['city']},
       onConfirm: () async {
+        final amount = tx['amount'] as num;
+        final estFee  = amount * 0.005;
+        WalletService.instance.debit(amount, estFee);
         final receipt = await _transfer.payMerchant(
           payerMsisdn: '2389001',
           merchantId: merchant['merchantId'] as String,
-          amount: tx['amount'] as num,
+          amount: amount,
         );
-        final fee = num.tryParse(receipt['fee']?.toString() ?? '0') ?? 0;
-        WalletService.instance.debit(tx['amount'] as num, fee);
+        final realFee = num.tryParse(receipt['fee']?.toString() ?? '0') ?? 0;
+        WalletService.instance.credit(estFee);
+        WalletService.instance.debit(0, realFee);
         _gotoSuccess({...tx, ...receipt});
       },
     ),
