@@ -95,10 +95,12 @@
 <main>
   <!-- Stats -->
   <div class="stats" id="stats">
-    <div class="stat-card"><div class="stat-label">Total Transferências</div><div class="stat-value" id="s-total">—</div><div class="stat-sub">P2P + P2M + G2P + FX</div></div>
-    <div class="stat-card"><div class="stat-label">Volume Total (CVE)</div><div class="stat-value" id="s-volume">—</div><div class="stat-sub">todos os tipos</div></div>
-    <div class="stat-card"><div class="stat-label">Pagamentos P2M</div><div class="stat-value" id="s-p2m">—</div><div class="stat-sub">comerciantes</div></div>
-    <div class="stat-card"><div class="stat-label">Remessas FX</div><div class="stat-value" id="s-fx">—</div><div class="stat-sub">internacionais</div></div>
+    <div class="stat-card"><div class="stat-label">Total Operações</div><div class="stat-value" id="s-total">—</div><div class="stat-sub">todos os serviços</div></div>
+    <div class="stat-card"><div class="stat-label">Volume Total (CVE)</div><div class="stat-value" id="s-volume">—</div><div class="stat-sub">transferências</div></div>
+    <div class="stat-card"><div class="stat-label">Impostos Pagos</div><div class="stat-value" id="s-tax">—</div><div class="stat-sub">recibos emitidos</div></div>
+    <div class="stat-card"><div class="stat-label">Escudo Digital</div><div class="stat-value" id="s-cbdc">—</div><div class="stat-sub">em circulação</div></div>
+    <div class="stat-card"><div class="stat-label">R2P Pedidos</div><div class="stat-value" id="s-r2p">—</div><div class="stat-sub">request to pay</div></div>
+    <div class="stat-card"><div class="stat-label">Operações Agente</div><div class="stat-value" id="s-agent">—</div><div class="stat-sub">cash-in + cash-out</div></div>
   </div>
 
   <!-- Charts -->
@@ -122,12 +124,14 @@
   <!-- ═══ OPS PAGE ═══ -->
   <div id="page-ops">
   <!-- Tabs -->
-  <div class="tabs">
+  <div class="tabs" style="flex-wrap:wrap">
     <button class="tab active" onclick="setTab('all')">Todas</button>
     <button class="tab" onclick="setTab('P2P')">P2P</button>
     <button class="tab" onclick="setTab('P2M')">P2M</button>
     <button class="tab" onclick="setTab('G2P')">G2P</button>
     <button class="tab" onclick="setTab('FX')">FX</button>
+    <button class="tab" onclick="setTab('R2P')">R2P</button>
+    <button class="tab" onclick="setTab('G2P')">Agentes</button>
   </div>
 
   <!-- Main grid -->
@@ -149,7 +153,7 @@
     </div>
 
     <!-- G2P Batches -->
-    <div class="card" id="g2p-card">
+    <div class="card">
       <div class="card-header">
         <span class="card-title">Lotes G2P</span>
         <span class="card-count" id="g2p-count">0</span>
@@ -157,19 +161,46 @@
       <div id="g2p-body"><div class="empty">Sem lotes G2P</div></div>
     </div>
 
-    <!-- Merchant Payments + FX Rates -->
-    <div style="display:flex;flex-direction:column;gap:20px">
-      <div class="card">
-        <div class="card-header">
-          <span class="card-title">Pagamentos Comerciantes</span>
-          <span class="card-count" id="merch-count">0</span>
-        </div>
-        <div id="merch-body"><div class="empty">Sem pagamentos P2M</div></div>
+    <!-- Merchant Payments -->
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">Pagamentos Comerciantes (P2M)</span>
+        <span class="card-count" id="merch-count">0</span>
       </div>
-      <div class="card">
-        <div class="card-header"><span class="card-title">Taxas de Câmbio</span><span style="font-size:11px;color:var(--light)">CVE</span></div>
-        <div id="fx-rates"><div class="empty">A carregar…</div></div>
+      <div id="merch-body"><div class="empty">Sem pagamentos P2M</div></div>
+    </div>
+
+    <!-- R2P Requests -->
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">Request to Pay</span>
+        <span class="card-count" id="r2p-count">0</span>
       </div>
+      <div id="r2p-body"><div class="empty">Sem pedidos</div></div>
+    </div>
+
+    <!-- Tax Receipts -->
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">Impostos Pagos</span>
+        <span class="card-count" id="tax-count">0</span>
+      </div>
+      <div id="tax-body"><div class="empty">Sem recibos</div></div>
+    </div>
+
+    <!-- CBDC Transactions -->
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">Escudo Digital (CBDC)</span>
+        <span style="font-size:11px;color:var(--light)" id="cbdc-supply">circulação: 0 ₠</span>
+      </div>
+      <div id="cbdc-body"><div class="empty">Sem transações CBDC</div></div>
+    </div>
+
+    <!-- FX Rates -->
+    <div class="card">
+      <div class="card-header"><span class="card-title">Taxas de Câmbio</span><span style="font-size:11px;color:var(--light)">CVE</span></div>
+      <div id="fx-rates"><div class="empty">A carregar…</div></div>
     </div>
 
   </div>
@@ -405,21 +436,35 @@ function renderTx() {
 
 async function loadAll() {
   try {
-    const [txRes, g2pRes, merchRes, fxRes] = await Promise.all([
+    const [txRes, g2pRes, merchRes, fxRes, r2pRes, taxRes, cbdcRes, agentsRes] = await Promise.all([
       fetch('/transfers').then(r=>r.json()),
       fetch('/g2p/batches').then(r=>r.json()),
       fetch('http://localhost:4002/payments').then(r=>r.json()).catch(()=>[]),
       fetch('/fx/rates').then(r=>r.json()),
+      fetch('/requests').then(r=>r.json()).catch(()=>[]),
+      fetch('/tax/receipts').then(r=>r.json()).catch(()=>[]),
+      fetch('/cbdc/transactions').then(r=>r.json()).catch(()=>[]),
+      fetch('/agents').then(r=>r.json()).catch(()=>[]),
     ]);
 
     allTx = txRes;
 
     // Stats
     const vol = allTx.reduce((s,t) => s + (Number(t.amount)||0), 0);
-    document.getElementById('s-total').textContent = allTx.length;
+    document.getElementById('s-total').textContent = allTx.length + r2pRes.length + taxRes.length + cbdcRes.length;
     document.getElementById('s-volume').textContent = fmt(vol);
-    document.getElementById('s-p2m').textContent = allTx.filter(t=>t.kind==='P2M').length;
-    document.getElementById('s-fx').textContent = allTx.filter(t=>t.kind==='FX').length;
+    document.getElementById('s-tax').textContent = taxRes.length;
+    document.getElementById('s-r2p').textContent = r2pRes.length;
+    // CBDC supply
+    fetch('/cbdc/supply').then(r=>r.json()).then(s=>{
+      document.getElementById('s-cbdc').textContent = fmt(s.totalSupply||0) + ' ₠';
+      document.getElementById('cbdc-supply').textContent = 'circulação: ' + fmt(s.totalSupply||0) + ' ₠';
+    }).catch(()=>{});
+    // Agent ops
+    const agentOps = agentsRes.reduce((s,a)=>{
+      const txs = a.transactions||[]; return s+txs.length;
+    },0);
+    document.getElementById('s-agent').textContent = agentOps;
 
     renderTx();
     updateCharts(allTx);
@@ -458,6 +503,41 @@ async function loadAll() {
           <div class="id">${(p.transferId||'').slice(0,8).toUpperCase()} · ${ts(p.createdAt)}</div></div>
         <span class="amount" style="color:var(--purple)">${fmt(p.amount)} CVE</span>
       </div>`).join('') : '<div class="empty">Sem pagamentos P2M</div>';
+
+    // R2P
+    document.getElementById('r2p-count').textContent = r2pRes.length;
+    document.getElementById('r2p-body').innerHTML = r2pRes.length ? r2pRes.slice(0,6).map(r=>`
+      <div class="brow">
+        <div>
+          <div style="font-size:13px;font-weight:500">${r.merchantName||r.merchantId} → ${r.payerMsisdn}</div>
+          <div class="id">${r.description||''}</div>
+        </div>
+        <div style="text-align:right">
+          <div class="amount">${fmt(r.amount)} CVE</div>
+          <span class="badge ${r.state==='ACCEPTED'?'badge-ok':r.state==='REJECTED'?'badge-err':'badge-pend'}">${r.state}</span>
+        </div>
+      </div>`).join('') : '<div class="empty">Sem pedidos R2P</div>';
+
+    // Tax
+    document.getElementById('tax-count').textContent = taxRes.length;
+    document.getElementById('tax-body').innerHTML = taxRes.length ? taxRes.slice(0,5).map(r=>`
+      <div class="brow">
+        <div>
+          <div style="font-size:13px;font-weight:500">${r.code} · ${r.nif}</div>
+          <div class="id">${r.period||''} · ${r.taxType||''}</div>
+        </div>
+        <span class="amount">${fmt(r.total)} CVE</span>
+      </div>`).join('') : '<div class="empty">Sem recibos fiscais</div>';
+
+    // CBDC
+    document.getElementById('cbdc-body').innerHTML = cbdcRes.length ? cbdcRes.slice(0,6).map(t=>`
+      <div class="brow">
+        <div>
+          <span class="badge ${t.type==='MINT'?'badge-p2m':t.type==='TRANSFER'?'badge-p2p':'badge-ok'}">${t.type}</span>
+          <div class="id">${t.to||t.msisdn||''}</div>
+        </div>
+        <span class="amount">${fmt(t.amount)} ₠</span>
+      </div>`).join('') : '<div class="empty">Sem transações CBDC</div>';
 
     // FX rates
     document.getElementById('fx-rates').innerHTML = fxRes.map(r=>`
